@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  cn: site1
+  last_crt: x
+  csr: x
+  key: x
+  detail: MyText
+  acme_id: MyString
+  owner: one
+
+two:
+  cn: site2
+  last_crt: x
+  csr: x
+  key: x
+  detail: MyText2
+  acme_id: MyString2
+  owner: two

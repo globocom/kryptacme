@@ -1,0 +1,13 @@
+defaults: &defaults
+  acme_endpoint: 'http://127.0.0.1:4000/'
+  gdns_endpoint: 'http://localhost/'
+  gdns_token: 'UNDEF'
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults
