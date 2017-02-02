@@ -21,25 +21,16 @@ authorizations: &AUTHORIZATIONS
 
 ## Environment
 
-test: &TEST
-  host: localhost
-  port: 3389
-  attribute: cn
-  base: ou=people,dc=test,dc=com
-  admin_user: cn=admin,dc=test,dc=com
-  admin_password: secret
+production: &TEST
+  host: <%= ENV['LDAP_HOST'] %>
+  port: <%= ENV['LDAP_PORT'] %>
+  attribute: <%= ENV['LDAP_ATTRIBUTE'] %>
+  base: <%= ENV['LDAP_BASE'] %>
+  admin_user: <%= ENV['LDAP_ADMIN_USER'] %>
+  admin_password: <%= ENV['LDAP_ADMIN_PASS'] %>
   ssl: false
   # <<: *AUTHORIZATIONS
 
 development:
   <<: *TEST
 
-production:
-  host: localhost
-  port: 3389
-  attribute: cn
-  base: ou=people,dc=test,dc=com
-  admin_user: cn=admin,dc=test,dc=com
-  admin_password: secret
-  ssl: false
-  # <<: *AUTHORIZATIONS

@@ -1,7 +1,7 @@
 defaults: &defaults
-  acme_endpoint: 'http://127.0.0.1:4000/'
-  gdns_endpoint: 'http://localhost/'
-  gdns_token: 'UNDEF'
+  acme_endpoint: <%= ENV['ACME_ENDPOINT'] %>
+  gdns_endpoint: <%= ENV['GDNS_ENDPOINT'] %>
+  gdns_token: <%= ENV['GDNS_TOKEN'] %>
 
 development:
   <<: *defaults

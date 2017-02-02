@@ -1,6 +1,6 @@
 require 'local_acme'
 
-class Owner < ApplicationRecord
+class Project < ApplicationRecord
   include Filterable
 
   scope :n, -> (name) { where name: name }
@@ -16,6 +16,6 @@ class Owner < ApplicationRecord
 
   private
   def acme_register
-    LocalAcme.instance.register_owner(self)
+    LocalAcme.instance.register_project(self)
   end
 end

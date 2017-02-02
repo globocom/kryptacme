@@ -1,48 +1,48 @@
 require 'test_helper'
 
-class OwnersControllerTest < ActionDispatch::IntegrationTest
+class ProjectsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @owner = owners(:one)
+    @project = projects(:one)
   end
 
   test 'should get index' do
-    get owners_url
+    get projects_url
     assert_response :success
   end
 
-  test 'should create owner' do
-    assert_difference('Owner.count') do
-      post owners_url, params: { owner: {
-          acme_id:@owner.acme_id,
-          detail:@owner.detail,
-          email: "#{@owner.email}.com",
-          name: "#{@owner.name}_test",
-          private_pem: @owner.private_pem
+  test 'should create project' do
+    assert_difference('Project.count') do
+      post projects_url, params: { project: {
+          acme_id:@project.acme_id,
+          detail:@project.detail,
+          email: "#{@project.email}.com",
+          name: "#{@project.name}_test",
+          private_pem: @project.private_pem
       } }
     end
 
     assert_response 201
   end
 
-  test 'should show owner' do
-    get owner_url(@owner)
+  test 'should show project' do
+    get project_url(@project)
     assert_response :success
   end
 
-  test 'should update owner' do
-    patch owner_url(@owner), params: { owner: {
-        acme_id:@owner.acme_id,
-        detail:@owner.detail,
-        email: "#{@owner.email}.com",
-        name: "#{@owner.name}_test",
-        private_pem: @owner.private_pem
+  test 'should update project' do
+    patch project_url(@project), params: { project: {
+        acme_id:@project.acme_id,
+        detail:@project.detail,
+        email: "#{@project.email}.com",
+        name: "#{@project.name}_test",
+        private_pem: @project.private_pem
     } }
     assert_response 200
   end
 
-  test 'should destroy owner' do
-    assert_difference('Owner.count', -1) do
-      delete owner_url(@owner)
+  test 'should destroy project' do
+    assert_difference('Project.count', -1) do
+      delete project_url(@project)
     end
 
     assert_response 204

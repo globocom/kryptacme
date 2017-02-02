@@ -19,14 +19,14 @@ ActiveRecord::Schema.define(version: 20170117155833) do
     t.text     "key",        limit: 65535
     t.text     "detail",     limit: 65535
     t.string   "acme_id"
-    t.integer  "owner_id"
+    t.integer  "project_id"
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
     t.index ["cn"], name: "index_certificates_on_cn", unique: true, using: :btree
-    t.index ["owner_id"], name: "index_certificates_on_owner_id", using: :btree
+    t.index ["project_id"], name: "index_certificates_on_project_id", using: :btree
   end
 
-  create_table "owners", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "projects", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name",                      null: false
     t.string   "email",                     null: false
     t.text     "private_pem", limit: 65535
@@ -34,8 +34,8 @@ ActiveRecord::Schema.define(version: 20170117155833) do
     t.string   "acme_id"
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
-    t.index ["email"], name: "index_owners_on_email", unique: true, using: :btree
-    t.index ["name"], name: "index_owners_on_name", unique: true, using: :btree
+    t.index ["email"], name: "index_projects_on_email", unique: true, using: :btree
+    t.index ["name"], name: "index_projects_on_name", unique: true, using: :btree
   end
 
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -55,5 +55,5 @@ ActiveRecord::Schema.define(version: 20170117155833) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end
 
-  add_foreign_key "certificates", "owners", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "certificates", "projects", on_update: :cascade, on_delete: :cascade
 end

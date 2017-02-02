@@ -1,21 +1,21 @@
 class CertificatesController < ApplicationController
   before_action :set_certificate, only: [:show, :update, :destroy]
 
-  def certificate_url(owner)
-    "/owners/#{owner.id}/certificates"
+  def certificate_url(project)
+    "/projects/#{project.id}/certificates"
   end
 
-  # GET /owners/:owner_id/certificates
+  # GET /projects/:project_id/certificates
   def index
     begin
-      @certificates = Certificate.where(owner_id: params[:owner_id]).filter(params.slice(:cn, :acme_id, :contains, :starts_with))
+      @certificates = Certificate.where(project_id: params[:project_id]).filter(params.slice(:cn, :acme_id, :contains, :starts_with))
       render json: @certificates
     rescue ActiveRecord::RecordNotFound
       render :head => true, :status => :not_found
     end
   end
 
-  # GET /owners/:owner_id/certificates/:id
+  # GET /projects/:project_id/certificates/:id
   def show
     if @certificate.nil?
       render :head => true, :status => :not_found
@@ -24,7 +24,7 @@ class CertificatesController < ApplicationController
     end
   end
 
-  # POST /owners/:owner_id/certificates
+  # POST /projects/:project_id/certificates
   def create
     @certificate = Certificate.new(certificate_params)
 
@@ -35,7 +35,7 @@ class CertificatesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /owners/:owner_id/certificates/:id
+  # PATCH/PUT /projects/:project_id/certificates/:id
   def update
     if @certificate.update(certificate_params)
       render json: @certificate
@@ -44,7 +44,7 @@ class CertificatesController < ApplicationController
     end
   end
 
-  # DELETE /owners/:owner_id/certificates/:id
+  # DELETE /projects/:project_id/certificates/:id
   def destroy
     @certificate.destroy
   end
@@ -53,7 +53,7 @@ class CertificatesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_certificate
       begin
-        @certificate = Certificate.where(owner_id: params[:owner_id]).where(id: params[:id]).first!
+        @certificate = Certificate.where(project_id: params[:project_id]).where(id: params[:id]).first!
       rescue ActiveRecord::RecordNotFound
         @certificate = nil
       end
@@ -61,6 +61,6 @@ class CertificatesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def certificate_params
-      params.require(:certificate).permit(:cn, :last_crt, :csr, :key, :detail, :acme_id, :owner_id)
+      params.require(:certificate).permit(:cn, :last_crt, :csr, :key, :detail, :acme_id, :project_id)
     end
 end

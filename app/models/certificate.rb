@@ -8,11 +8,11 @@ class Certificate < ApplicationRecord
   scope :starts_with, -> (cn) { where('cn like ?', "#{cn}%")}
   scope :contains, -> (cn) { where('cn like ?', "%#{cn}%")}
 
-  #attr_accessor :cn, :last_crt, :csr, :key, :detail, :acme_id, :owner
-  validates :cn, :owner, presence: true
+  #attr_accessor :cn, :last_crt, :csr, :key, :detail, :acme_id, :project
+  validates :cn, :project, presence: true
   before_create :acme_request
 
-  belongs_to :owner
+  belongs_to :project
 
   private
   def acme_request
