@@ -26,16 +26,16 @@ class LocalAcme
       token = challenge.token
       puts "TOKEN: #{token}"
       add_dns_txt(certificate.cn, token)
-      challenge.request_verification
+      #challenge.request_verification # como o export leva dois minutos depois, não poderá ser imediato, terá que entrar em algum schedule
 
+=begin
+      # incluir esse trecho no schedule
       csr = Acme::Client::CertificateRequest.new(names: %W[ #{certificate.cn} ])
       crt = client.new_certificate(csr)
       certificate.last_crt = crt.to_pem
+=end
     rescue Acme::Client::Error::Unauthorized => detail
       puts "#{detail.class}: #{detail.message}"
-    rescue => detail
-      puts "#{detail.class}: #{detail.message}"
-      print detail.backtrace.join("\n")
     end
   end
 
@@ -51,7 +51,6 @@ class LocalAcme
       return client
     rescue => detail
       puts "#{detail.class}: #{detail.message}"
-      return nil
     end
   end
 
