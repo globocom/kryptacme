@@ -9,7 +9,6 @@ class Project < ApplicationRecord
   scope :contains, -> (name) { where('name like ?', "%#{name}%")}
   scope :acme_id, -> (acme_id) { where acme_id: acme_id }
 
-  #attr_accessor :name, :email, :private_pem, :detail, :acme_id
   validates :name, :email, presence: true
   before_create :acme_register
   has_many :certificates

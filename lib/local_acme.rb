@@ -23,19 +23,40 @@ class LocalAcme
       raise StandardError if client.nil?
       authorization = client.authorize(domain: certificate.cn)
       challenge = authorization.dns01
-      token = challenge.token
+      token = challenge.record_content
       puts "TOKEN: #{token}"
       add_dns_txt(certificate.cn, token)
-      #challenge.request_verification # como o export leva dois minutos depois, não poderá ser imediato, terá que entrar em algum schedule
+      CertificatesChallengeJob.set(wait: 2.minutes).perform_later(certificate,authorization.uri) #TODO move to job or controller
+      puts authorization.uri
 
-=begin
-      # incluir esse trecho no schedule
-      csr = Acme::Client::CertificateRequest.new(names: %W[ #{certificate.cn} ])
-      crt = client.new_certificate(csr)
-      certificate.last_crt = crt.to_pem
-=end
     rescue Acme::Client::Error::Unauthorized => detail
       puts "#{detail.class}: #{detail.message}"
+    end
+  end
+
+  def challenge(certificate, authorization)
+    client = _new_client(certificate.project)
+    raise StandardError if client.nil?
+    challenge = client.fetch_authorization(authorization).dns01
+    challenge.request_verification
+    sleep(2)
+    challenge.authorization.verify_status
+    if challenge.authorization.verify_status == 'valid'
+      puts 'Success challenge'
+      csr_param = OpenSSL::X509::Request.new(certificate.csr)
+      crt = client.new_certificate(csr_param)
+      crt_pem = crt.to_pem
+
+      path = "/tmp/#{certificate.cn}.pem" # TODO turn to configurable
+      File.open(path, "w+") do |f|
+        f.write("#{crt_pem}\n#{certificate.key}")
+      end
+
+      certificate.last_crt = crt_pem
+      certificate.save
+    else
+      puts challenge.authorization.dns01.error
+      #TODO What do case fail?
     end
   end
 
@@ -68,7 +89,7 @@ class LocalAcme
 
   def add_dns_txt(domain, token)
     id_domain = add_domain_with_records(domain)
-    add_record_token(id_domain, token)
+    add_record_token(domain, id_domain, token)
     call_export
   rescue => e
     puts "failed #{e}"
@@ -85,12 +106,12 @@ class LocalAcme
     puts res.body
   end
 
-  def add_record_token(id_domain, token)
+  def add_record_token(domain, id_domain, token)
     uri = URI(@gdns_endpoint + "/domains/#{id_domain}/records.json")
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
     req['X-Auth-Token'] = @gdns_token
 
-    req.body = {record: {name: "acme-challenge.#{domain}", type: "TXT", content: "#{token}"}}.to_json
+    req.body = {record: {name: "_acme-challenge.#{domain}.", type: "TXT", content: "#{token}"}}.to_json
     res = Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end

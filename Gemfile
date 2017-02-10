@@ -45,3 +45,5 @@ gem 'active_model_serializers', '0.10.3'
 
 # acme-client
 gem 'acme-client', '0.5.0'
+
+gem 'sidekiq'

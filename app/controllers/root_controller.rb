@@ -4,8 +4,6 @@ class RootController < ApplicationController
     links = [
         href: "#{ApplicationController.hostname}/projects",
     ]
-
     render json: { links: links }
   end
-
 end

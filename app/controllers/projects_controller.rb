@@ -1,3 +1,5 @@
+require 'openssl'
+
 class ProjectsController < ApplicationController
   before_action :set_project, only: [:show, :update, :destroy]
 
@@ -19,7 +21,7 @@ class ProjectsController < ApplicationController
   # POST /projects
   def create
     @project = Project.new(project_params)
-
+    @project.private_pem = OpenSSL::PKey::RSA.new(4096).to_pem
     if @project.save
       render json: @project, status: :created, location: @project
     else
@@ -53,6 +55,6 @@ class ProjectsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def project_params
-      params.require(:project).permit(:name, :email, :pkcs12, :detail, :acme_id)
+      params.require(:project).permit(:name, :email, :pkcs12, :detail, :acme_id, :private_pem)
     end
 end
