@@ -12,6 +12,5 @@ class CertificatesCreateJob < ApplicationJob
       certificate.status_detail = e.message
       certificate.error!
     end
-    # TODO change status to PENDENT, waiting for challenge, or to FAIL when case fails in letsencrypt
   end
 end

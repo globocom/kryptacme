@@ -9,6 +9,7 @@ class CreateCertificates < ActiveRecord::Migration[5.0]
       t.string :acme_id
       t.column :status, :integer, default: 0
       t.text :status_detail
+      t.boolean :auto_renewal, default: false
       t.references :project, foreign_key: { :on_update => :cascade, on_delete: :cascade }
 
       t.timestamps
