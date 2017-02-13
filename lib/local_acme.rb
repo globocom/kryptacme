@@ -10,6 +10,7 @@ class LocalAcme
     @acme_endpoint = APP_CONFIG['acme_endpoint']
     @gdns_endpoint = APP_CONFIG['gdns_endpoint']
     @gdns_token = APP_CONFIG['gdns_token']
+    @dest_crt = APP_CONFIG['dest_crt']
   end
 
   def register_project(project)
@@ -39,7 +40,7 @@ class LocalAcme
       crt = client.new_certificate(csr_param)
       crt_pem = crt.to_pem
 
-      path = "/tmp/#{certificate.cn}.pem" # TODO turn to configurable
+      path = @dest_crt + "#{certificate.cn}.pem"
       File.open(path, "w+") do |f|
         f.write("#{crt_pem}\n#{certificate.key}")
       end

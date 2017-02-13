@@ -2,6 +2,10 @@ require 'local_acme'
 
 class CertificatesRenewalJob < ApplicationJob
 
+  def initialize
+    @time_renewal = APP_CONFIG['time_renewal'] * 60 * 60 * 24
+  end
+
   def perform
     begin
       certificates = Certificate.where(status: :valid_rec)
@@ -10,7 +14,7 @@ class CertificatesRenewalJob < ApplicationJob
         timeNow = Time.now.utc.to_i
         timeCert = openSSLCert.not_after.to_i
         diffTime = timeCert - timeNow
-        if diffTime < (60 * 60 * 24 * 30) # 30 days - turn configurable
+        if diffTime < @time_renewal
           if cert.auto_renewal
             CertificatesCreateJob.perform_later cert
           else
