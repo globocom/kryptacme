@@ -22,6 +22,7 @@ class LocalAcme
     client = _new_client(certificate.project)
     cert = OpenSSL::X509::Certificate.new(certificate.last_crt)
     client.revoke_certificate(cert)
+    certificate.revoked!
   end
 
   def request_cert(certificate)
