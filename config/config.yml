@@ -3,7 +3,7 @@ defaults: &defaults
   gdns_endpoint: <%= ENV['GDNS_ENDPOINT'] %>
   gdns_token: <%= ENV['GDNS_TOKEN'] %>
   dest_crt: <%= ENV['DEST_CRT'] %>
-  time_renewal: <%= ENV['TIME_EXPIRATION'] %> #DAYS
+  time_renewal: <%= ENV['TIME_RENEWAL'] %> #DAYS
 
 development:
   <<: *defaults

@@ -18,6 +18,12 @@ class LocalAcme
     _register_client(client, project, true) unless client.nil?
   end
 
+  def revoke_cert(certificate)
+    client = _new_client(certificate.project)
+    cert = OpenSSL::X509::Certificate.new(certificate.last_crt)
+    client.revoke_certificate(cert)
+  end
+
   def request_cert(certificate)
       client = _new_client(certificate.project)
       authorization = client.authorize(domain: certificate.cn)
