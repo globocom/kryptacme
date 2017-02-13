@@ -47,3 +47,4 @@ gem 'active_model_serializers', '0.10.3'
 gem 'acme-client', '0.5.0'
 
 gem 'sidekiq'
+gem 'sidekiq-cron', '~> 0.4.0'

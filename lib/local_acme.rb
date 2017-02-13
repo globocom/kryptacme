@@ -23,10 +23,8 @@ class LocalAcme
       authorization = client.authorize(domain: certificate.cn)
       challenge = authorization.dns01
       token = challenge.record_content
-      puts "TOKEN: #{token}"
       add_dns_txt(certificate.cn, token)
-      CertificatesChallengeJob.set(wait: 2.minutes).perform_later(certificate,authorization.uri) #TODO move to job or controller
-      puts authorization.uri
+      CertificatesChallengeJob.set(wait: 3.minutes).perform_later(certificate,authorization.uri) #TODO move to job or controller
   end
 
   def challenge(certificate, authorization)
@@ -101,8 +99,6 @@ class LocalAcme
     res = Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
-    #TODO verify if success for export
-    puts res.body
   end
 
   def search_gdns(domain)
@@ -120,12 +116,8 @@ class LocalAcme
       puts 'Search domain failed'
       return nil #TODO Return error with gdns
     end
-
     domains_res = JSON.parse res.body
-    puts domains_res
-
     return domains_res
-
   end
 
   def add_domain_with_records(domain)
@@ -152,11 +144,9 @@ class LocalAcme
             http.request(req)
           end
           #TODO verify if success, because if not, we have delete the domain created for avoid problem with export
-          puts res.body
         end
       else
-        #TODO return error to client
-        puts res.body
+        #TODO return error
       end
     else
       id_domain = res_domain[0]['domain']['id']

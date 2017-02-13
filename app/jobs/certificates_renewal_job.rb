@@ -1,6 +1,8 @@
 require 'local_acme'
+require 'sidekiq-cron'
 
-class CertificatesRenewalJob < ApplicationJob
+class CertificatesRenewalJob
+  include Sidekiq::Worker
 
   def initialize
     @time_renewal = APP_CONFIG['time_renewal'] * 60 * 60 * 24

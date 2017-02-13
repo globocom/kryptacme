@@ -1,0 +1,5 @@
+certificates_renewal_job:
+  cron: "*/1 * * * *"
+  class: "CertificatesRenewalJob"
+  queue: default
+  active_job: true
