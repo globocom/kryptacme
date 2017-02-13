@@ -18,9 +18,7 @@ class LocalAcme
   end
 
   def request_cert(certificate)
-    begin
       client = _new_client(certificate.project)
-      raise StandardError if client.nil?
       authorization = client.authorize(domain: certificate.cn)
       challenge = authorization.dns01
       token = challenge.record_content
@@ -28,21 +26,15 @@ class LocalAcme
       add_dns_txt(certificate.cn, token)
       CertificatesChallengeJob.set(wait: 2.minutes).perform_later(certificate,authorization.uri) #TODO move to job or controller
       puts authorization.uri
-
-    rescue Acme::Client::Error::Unauthorized => detail
-      puts "#{detail.class}: #{detail.message}"
-    end
   end
 
   def challenge(certificate, authorization)
     client = _new_client(certificate.project)
-    raise StandardError if client.nil?
     challenge = client.fetch_authorization(authorization).dns01
     challenge.request_verification
     sleep(2)
     challenge.authorization.verify_status
     if challenge.authorization.verify_status == 'valid'
-      puts 'Success challenge'
       csr_param = OpenSSL::X509::Request.new(certificate.csr)
       crt = client.new_certificate(csr_param)
       crt_pem = crt.to_pem
@@ -53,8 +45,12 @@ class LocalAcme
       end
 
       certificate.last_crt = crt_pem
+      certificate.valid_rec!
       certificate.save
     else
+      certificate.invalid_rec!
+      certificate.status_detail = challenge.authorization.dns01.error
+      certificate.save
       puts challenge.authorization.dns01.error
       #TODO What do case fail?
     end
@@ -62,37 +58,26 @@ class LocalAcme
 
   private
   def _new_client(project)
-    begin
-      return nil if project.nil? or project.private_pem.nil?
-      pem = project.private_pem.split('@').join(10.chr)
-      private_key = OpenSSL::PKey::RSA.new(pem)
-      client = Acme::Client.new(private_key: private_key,
-                                endpoint: @acme_endpoint,
-                                connection_options: {request: {open_timeout: 5, timeout: 5}})
-      return client
-    rescue => detail
-      puts "#{detail.class}: #{detail.message}"
-    end
+    raise "Project does not exist or project does not contains the private key" if project.nil? or project.private_pem.nil?
+    pem = project.private_pem.split('@').join(10.chr)
+    private_key = OpenSSL::PKey::RSA.new(pem)
+    client = Acme::Client.new(private_key: private_key,
+                              endpoint: @acme_endpoint,
+                              connection_options: {request: {open_timeout: 5, timeout: 5}})
+    raise "Some error happined when create client with LetsEncrypt" if client.nil?
+    return client
   end
 
   def _register_client(client, project, agree=false)
-    registration = nil
-    begin
-      contact = "mailto:#{project.email}".freeze
-      registration = client.register(contact: contact)
-    rescue => detail
-      puts "#{detail.class}: #{detail.message}"
-      print detail.backtrace.join("\n")
-    end
+    contact = "mailto:#{project.email}".freeze
+    registration = client.register(contact: contact)
     registration.agree_terms if agree and !registration.nil?
   end
 
-  def add_dns_txt(domain, token)
+  def add_dns_txt(domain, token) #TODO verify status http code to return error or success
     id_domain = add_domain_with_records(domain)
     add_record_token(domain, id_domain, token)
     call_export
-  rescue => e
-    puts "failed #{e}"
   end
 
   def call_export

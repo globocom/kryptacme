@@ -13,15 +13,17 @@
 ActiveRecord::Schema.define(version: 20170117155833) do
 
   create_table "certificates", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "cn",                       null: false
-    t.text     "last_crt",   limit: 65535
-    t.text     "csr",        limit: 65535
-    t.text     "key",        limit: 65535
-    t.text     "detail",     limit: 65535
+    t.string   "cn",                                      null: false
+    t.text     "last_crt",      limit: 65535
+    t.text     "csr",           limit: 65535
+    t.text     "key",           limit: 65535
+    t.text     "detail",        limit: 65535
     t.string   "acme_id"
+    t.integer  "status",                      default: 0
+    t.text     "status_detail", limit: 65535
     t.integer  "project_id"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
     t.index ["cn"], name: "index_certificates_on_cn", unique: true, using: :btree
     t.index ["project_id"], name: "index_certificates_on_project_id", using: :btree
   end
