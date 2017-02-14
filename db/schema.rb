@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170117155833) do
+ActiveRecord::Schema.define(version: 20170214120532) do
 
   create_table "certificates", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "cn",                                          null: false
@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(version: 20170117155833) do
     t.integer  "status",                      default: 0
     t.text     "status_detail", limit: 65535
     t.boolean  "auto_renewal",                default: false
+    t.boolean  "revoked",                     default: false
     t.integer  "project_id"
     t.datetime "created_at",                                  null: false
     t.datetime "updated_at",                                  null: false

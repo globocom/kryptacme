@@ -22,7 +22,6 @@ class LocalAcme
     client = _new_client(certificate.project)
     cert = OpenSSL::X509::Certificate.new(certificate.last_crt)
     client.revoke_certificate(cert)
-    certificate.revoked!
   end
 
   def request_cert(certificate)
@@ -98,6 +97,7 @@ class LocalAcme
   end
 
   def add_record_token(domain, id_domain, token)
+    # TODO Verify if exists the record _acme-challenge
     uri = URI(@gdns_endpoint + "/domains/#{id_domain}/records.json")
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
     req['X-Auth-Token'] = @gdns_token

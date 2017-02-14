@@ -1,5 +1,5 @@
 class CertificatesController < ApplicationController
-  before_action :set_certificate, only: [:show, :update, :destroy]
+  before_action :set_certificate, only: [:show, :update]
 
   def certificate_url(project)
     "/projects/#{project.id}/certificates"
@@ -37,6 +37,7 @@ class CertificatesController < ApplicationController
 
   # PATCH/PUT /projects/:project_id/certificates/:id
   def update
+    CertificatesRevokeJob.perform_later @certificate
     if @certificate.update(certificate_params)
       render json: @certificate
     else
@@ -61,6 +62,6 @@ class CertificatesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def certificate_params
-      params.require(:certificate).permit(:cn, :last_crt, :csr, :key, :detail, :acme_id, :project_id)
+      params.require(:certificate).permit(:cn, :last_crt, :csr, :key, :detail, :acme_id, :project_id, :revoked)
     end
 end
