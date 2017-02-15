@@ -13,10 +13,8 @@ class CertificatesControllerTest < ActionDispatch::IntegrationTest
   test 'should create certificate' do
     assert_difference('Certificate.count') do
       post project_certificates_url(@certificate.project.id), params: { certificate: {
-          acme_id: @certificate.acme_id,
           cn: "#{@certificate.cn}.example.com",
           csr: @certificate.csr,
-          detail: @certificate.detail,
           key: @certificate.key,
           last_crt: @certificate.last_crt,
           project_id: @certificate.project_id } }
@@ -32,10 +30,8 @@ class CertificatesControllerTest < ActionDispatch::IntegrationTest
   test 'should update certificate' do
     certificate2 = certificates(:two)
     patch project_certificate_url(@certificate.project.id, @certificate), params: { certificate: {
-        acme_id: certificate2.acme_id,
         cn: "#{certificate2.cn}.example.com",
         csr: certificate2.csr,
-        detail: certificate2.detail,
         key: certificate2.key,
         last_crt: certificate2.last_crt,
         project_id: certificate2.project_id } }

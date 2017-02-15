@@ -5,13 +5,9 @@ one:
   name: MyString
   email: contact+1@example
   private_pem: <%= OpenSSL::PKey::RSA.new(4096).to_pem.gsub(/\n/, '@') %>
-  detail: MyText
-  acme_id: MyString
 
 two:
   name: MyString2
   email: contact+2@example
   private_pem: <%= OpenSSL::PKey::RSA.new(4096).to_pem.gsub(/\n/, '@') %>
-  detail: MyText2
-  acme_id: MyString2
 

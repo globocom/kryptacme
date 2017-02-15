@@ -13,8 +13,6 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test 'should create project' do
     assert_difference('Project.count') do
       post projects_url, params: { project: {
-          acme_id:@project.acme_id,
-          detail:@project.detail,
           email: "#{@project.email}.com",
           name: "#{@project.name}_test",
           private_pem: @project.private_pem
@@ -31,8 +29,6 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should update project' do
     patch project_url(@project), params: { project: {
-        acme_id:@project.acme_id,
-        detail:@project.detail,
         email: "#{@project.email}.com",
         name: "#{@project.name}_test",
         private_pem: @project.private_pem

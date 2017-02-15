@@ -7,11 +7,11 @@ class Project < ApplicationRecord
   scope :email, -> (email) { where email: email }
   scope :starts_with, -> (name) { where('name like ?', "#{name}%")}
   scope :contains, -> (name) { where('name like ?', "%#{name}%")}
-  scope :acme_id, -> (acme_id) { where acme_id: acme_id }
 
   validates :name, :email, presence: true
   before_create :acme_register
   has_many :certificates
+  has_and_belongs_to_many :users
 
   private
   def acme_register

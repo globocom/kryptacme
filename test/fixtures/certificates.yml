@@ -5,8 +5,6 @@ one:
   last_crt: x
   csr: x
   key: x
-  detail: MyText
-  acme_id: MyString
   owner: one
 
 two:
@@ -14,6 +12,4 @@ two:
   last_crt: x
   csr: x
   key: x
-  detail: MyText2
-  acme_id: MyString2
   owner: two

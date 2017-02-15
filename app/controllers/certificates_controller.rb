@@ -8,7 +8,7 @@ class CertificatesController < ApplicationController
   # GET /projects/:project_id/certificates
   def index
     begin
-      @certificates = Certificate.where(project_id: params[:project_id]).filter(params.slice(:cn, :acme_id, :contains, :starts_with))
+      @certificates = Certificate.where(project_id: params[:project_id]).filter(params.slice(:cn, :contains, :starts_with))
       render json: @certificates
     rescue ActiveRecord::RecordNotFound
       render :head => true, :status => :not_found
@@ -62,6 +62,6 @@ class CertificatesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def certificate_params
-      params.require(:certificate).permit(:cn, :last_crt, :csr, :key, :detail, :acme_id, :project_id, :revoked)
+      params.require(:certificate).permit(:cn, :last_crt, :csr, :key, :project_id, :revoked)
     end
 end
