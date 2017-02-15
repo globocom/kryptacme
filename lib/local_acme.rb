@@ -34,7 +34,6 @@ class LocalAcme
   end
 
   def challenge(certificate, authorization)
-    begin
     client = _new_client(certificate.project)
     challenge = client.fetch_authorization(authorization).dns01
     challenge.request_verification
