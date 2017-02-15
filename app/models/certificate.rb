@@ -14,6 +14,7 @@ class Certificate < ApplicationRecord
   after_create :send_request
 
   belongs_to :project
+  belongs_to :environment
 
   private
   def send_request

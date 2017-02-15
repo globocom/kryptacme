@@ -5,6 +5,7 @@ Rails.application.routes.draw do
       resources :certificates, :except => [:destroy]
     end
     resources :users
+    resources :environments
   end
 
   root 'root#index'
