@@ -34,6 +34,13 @@ class LocalAcme
   end
 
   def challenge(certificate, authorization)
+    begin
+    dns = Resolv::DNS.new(:nameserver => '10.236.30.95')
+    data = dns.getresource("_acme-challenge.tiago2.testeabc.com1.", Resolv::DNS::Resource::IN::TXT).data
+    rescue Resolv::ResolvError
+      raise
+    end
+
     client = _new_client(certificate.project)
     challenge = client.fetch_authorization(authorization).dns01
     challenge.request_verification

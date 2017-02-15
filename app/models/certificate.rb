@@ -6,11 +6,10 @@ class Certificate < ApplicationRecord
   enum status: { pendent: 0, valid_rec: 1, invalid_rec: 2, warning: 3, expired: 4, revoked: 5, error: 6 }
 
   scope :cn, -> (cn) { where cn: cn }
-  scope :acme_id, -> (acme_id) { where acme_id: acme_id }
   scope :starts_with, -> (cn) { where('cn like ?', "#{cn}%")}
   scope :contains, -> (cn) { where('cn like ?', "%#{cn}%")}
 
-  #attr_accessor :cn, :last_crt, :csr, :key, :detail, :acme_id, :project, status, status_detail
+  #attr_accessor :cn, :last_crt, :csr, :key, :project, status, status_detail
   validates :cn, :project, presence: true
   after_create :send_request
 

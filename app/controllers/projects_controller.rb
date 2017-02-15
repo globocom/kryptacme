@@ -5,7 +5,7 @@ class ProjectsController < ApplicationController
 
   # GET /projects
   def index
-    @projects = Project.filter(params.slice(:n, :email, :acme_id, :contains, :starts_with))
+    @projects = Project.filter(params.slice(:n, :email, :contains, :starts_with))
     render json: @projects
   end
 
@@ -55,6 +55,6 @@ class ProjectsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def project_params
-      params.require(:project).permit(:name, :email, :pkcs12, :detail, :acme_id, :private_pem)
+      params.require(:project).permit(:name, :email, :pkcs12, :private_pem)
     end
 end

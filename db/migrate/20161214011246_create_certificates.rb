@@ -5,8 +5,6 @@ class CreateCertificates < ActiveRecord::Migration[5.0]
       t.text :last_crt, limit: 64.kilobytes-1
       t.text :csr, limit: 64.kilobytes-1
       t.text :key, limit: 16.kilobytes
-      t.text :detail
-      t.string :acme_id
       t.column :status, :integer, default: 0
       t.text :status_detail
       t.boolean :auto_renewal, default: false

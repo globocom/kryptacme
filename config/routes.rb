@@ -4,6 +4,7 @@ Rails.application.routes.draw do
     resources :projects do
       resources :certificates, :except => [:destroy]
     end
+    resources :users
   end
 
   root 'root#index'
