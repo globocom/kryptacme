@@ -5,7 +5,6 @@ class CertificatesChallengeJob < ApplicationJob
   def perform(certificate, authorization_uri)
     begin
       LocalAcme.instance.challenge(certificate, authorization_uri)
-      certificate.valid_rec!
     rescue => e
       puts e.message
       puts e.backtrace.join("\n")

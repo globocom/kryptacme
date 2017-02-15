@@ -53,11 +53,10 @@ class LocalAcme
       certificate.valid_rec!
       certificate.save
     else
-      certificate.invalid_rec!
       certificate.status_detail = challenge.authorization.dns01.error
+      certificate.invalid_rec!
       certificate.save
       puts challenge.authorization.dns01.error
-      #TODO What do case fail?
     end
   end
 

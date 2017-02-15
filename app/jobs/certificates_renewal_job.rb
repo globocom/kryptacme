@@ -12,6 +12,7 @@ class CertificatesRenewalJob
     begin
       certificates = Certificate.where(status: :valid_rec)
       certificates.each do |cert|
+        begin
         openSSLCert = OpenSSL::X509::Certificate.new(cert.last_crt)
         timeNow = Time.now.utc.to_i
         timeCert = openSSLCert.not_after.to_i
@@ -23,11 +24,17 @@ class CertificatesRenewalJob
             diffTime <= 0 ? cert.expired! : cert.warning!
           end
         end
+        rescue => e
+          puts e.message
+          puts e.backtrace.join("\n")
+          logger.warn "Unable to renewal certificate: #{e}"
+          cert.error!
+        end
       end
     rescue => e
       puts e.message
       puts e.backtrace.join("\n")
-      logger.warn "Unable to renewal certificate: #{e}"
+      logger.warn "Unable to search valid certificate: #{e}"
     end
   end
 end
