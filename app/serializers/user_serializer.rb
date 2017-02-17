@@ -1,5 +1,5 @@
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :email, :projects, :links
+  attributes :id, :email, :role, :projects, :links
 
   def links
     [

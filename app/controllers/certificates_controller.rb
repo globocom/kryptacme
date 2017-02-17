@@ -8,7 +8,10 @@ class CertificatesController < ApplicationController
   # GET /projects/:project_id/certificates
   def index
     begin
-      @certificates = Certificate.where(project_id: params[:project_id]).filter(params.slice(:cn, :contains, :starts_with))
+      @certificates = Certificate.joins(:project => :users)
+                                 .where("projects.id = ?", params[:project_id])
+                                 .where("users.id = ? ", current_user.id)
+                                 .filter(params.slice(:cn, :contains, :starts_with))
       render json: @certificates
     rescue ActiveRecord::RecordNotFound
       render :head => true, :status => :not_found
@@ -27,7 +30,6 @@ class CertificatesController < ApplicationController
   # POST /projects/:project_id/certificates
   def create
     @certificate = Certificate.new(certificate_params)
-
     if @certificate.save
       render json: @certificate, status: :created, location: @certificate
     else
@@ -37,8 +39,8 @@ class CertificatesController < ApplicationController
 
   # PATCH/PUT /projects/:project_id/certificates/:id
   def update
-    CertificatesRevokeJob.perform_later @certificate
     if @certificate.update(certificate_params)
+      CertificatesRevokeJob.perform_later @certificate
       render json: @certificate
     else
       render json: @certificate.errors, status: :unprocessable_entity
@@ -54,7 +56,10 @@ class CertificatesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_certificate
       begin
-        @certificate = Certificate.where(project_id: params[:project_id]).where(id: params[:id]).first!
+        @certificate = Certificate.joins(:project => :users)
+                                  .where("projects.id = ?", params[:project_id])
+                                  .where("users.id = ? ", current_user.id)
+                                  .where(id: params[:id]).first!
       rescue ActiveRecord::RecordNotFound
         @certificate = nil
       end

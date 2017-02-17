@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
+  before_action :admin_only
 
   # GET /users
   def index
@@ -26,8 +27,10 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
-    @project_uniq = (@user.projects + @projects).uniq
-    @user.projects = @project_uniq
+    unless @projects.nil?
+      @project_uniq = (@user.projects + @projects).uniq
+      @user.projects = @project_uniq
+    end
     if @user.update(user_params)
       render json: @user
     else
@@ -51,7 +54,6 @@ class UsersController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def user_params
-      puts params.inspect
-      params.fetch(:user, :id, :projects_id)
+      params.require(:user).permit(:projects_id, :email, :role)
     end
 end

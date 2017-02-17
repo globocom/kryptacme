@@ -8,19 +8,35 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :authorization
 
-begin
-  protected
+  begin
+    protected
 
-  def configure_permitted_parameters
-    devise_parameter_sanitizer.for(:sign_in) << :username
+    def configure_permitted_parameters
+      devise_parameter_sanitizer.for(:sign_in) << :username
+    end
   end
-end
 
   @@hostname = nil
 
   def self.hostname
     @@hostname
+  end
+
+  def admin_only
+    unless current_user.admin?
+      render :json => {message: 'Only Admin - Access Denied'}, status: 403
+    end
+  end
+
+  def authorization
+    current_action = params[:action]
+    write_admin = current_user.write? || current_user.admin?
+    read = current_user.read? && (['index','show'].include? current_action)
+    unless write_admin || read
+      render :json => {message: 'Authorization - Access Denied'}, status: 403
+    end
   end
 
   private
