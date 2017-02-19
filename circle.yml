@@ -1,0 +1,17 @@
+general:
+  branches:
+    only:
+      - master
+      - develop
+      - auth_disabled
+      - /feature/.*
+
+machine:
+  services:
+    - redis
+
+  environment:
+    RAILS_ENV: test
+    KRYPTACME_DATABASE_USER: ubuntu
+    KRYPTACME_DATABASE_HOST: localhost
+    KRYPTACME_DATABASE_PASSWORD:
