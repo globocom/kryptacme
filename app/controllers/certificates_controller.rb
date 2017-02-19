@@ -9,11 +9,11 @@ class CertificatesController < ApplicationController
   def index
     begin
       #@certificates = Certificate.joins(:project => :users)
-      #                           .where("projects.id = ?", params[:project_id])
+      #                           .where("project.id = ?", params[:project_id])
       #                           .where("users.id = ? ", current_user.id)
       #                           .filter(params.slice(:cn, :contains, :starts_with))
       @certificates = Certificate.all
-                                 .where("projects.id = ?", params[:project_id])
+                                 .where("project.id = ?", params[:project_id])
                                  .filter(params.slice(:cn, :contains, :starts_with))
       render json: @certificates
     rescue ActiveRecord::RecordNotFound
@@ -60,11 +60,11 @@ class CertificatesController < ApplicationController
     def set_certificate
       begin
         #@certificate = Certificate.joins(:project => :users)
-        #                          .where("projects.id = ?", params[:project_id])
+        #                          .where("project.id = ?", params[:project_id])
         #                          .where("users.id = ? ", current_user.id)
         #                          .where(id: params[:id]).first!
         @certificate = Certificate.all
-                                  .where("projects.id = ?", params[:project_id])
+                                  .where("project.id = ?", params[:project_id])
                                   .where(id: params[:id]).first!
       rescue ActiveRecord::RecordNotFound
         @certificate = nil
