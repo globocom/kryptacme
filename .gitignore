@@ -95,3 +95,5 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 .idea
+!lib
+!bin
