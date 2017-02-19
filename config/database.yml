@@ -50,5 +50,6 @@ test:
 production:
   <<: *default
   database: kryptacme
-  username: root
-  #password: <%= ENV['KRYPTACME_DATABASE_PASSWORD'] %>
+  username: <%= ENV['KRYPTACME_DATABASE_USER'] %>
+  host: <%= ENV['KRYPTACME_DATABASE_HOST'] %>
+  password: <%= ENV['KRYPTACME_DATABASE_PASSWORD'] %>
