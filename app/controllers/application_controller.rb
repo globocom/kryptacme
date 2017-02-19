@@ -1,14 +1,14 @@
 require 'socket'
 
 class ApplicationController < ActionController::API
-  rescue_from DeviseLdapAuthenticatable::LdapException do |exception|
-    render :text => exception, :status => 500
-  end
+  #rescue_from DeviseLdapAuthenticatable::LdapException do |exception|
+  #  render :text => exception, :status => 500
+  #end
   before_action :_set_hostname
 
-  before_action :authenticate_user!
-  before_action :configure_permitted_parameters, if: :devise_controller?
-  before_action :authorization
+  #before_action :authenticate_user!
+  #before_action :configure_permitted_parameters, if: :devise_controller?
+  #before_action :authorization
 
   begin
     protected

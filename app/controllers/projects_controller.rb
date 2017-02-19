@@ -5,7 +5,8 @@ class ProjectsController < ApplicationController
 
   # GET /projects
   def index
-    @projects = Project.joins(:users).where("users.id = ?", current_user.id).filter(params.slice(:n, :email, :contains, :starts_with))
+    #@projects = Project.joins(:users).where("users.id = ?", current_user.id).filter(params.slice(:n, :email, :contains, :starts_with))
+    @projects = Project.all
     render json: @projects
   end
 
@@ -47,7 +48,8 @@ class ProjectsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_project
       begin
-        @project = Project.joins(:users).where("users.id = ?", current_user.id).where("projects.id = ?", params[:id])
+        #@project = Project.joins(:users).where("users.id = ?", current_user.id).where("projects.id = ?", params[:id])
+        @project = Project.where("projects.id = ?", params[:id])
       rescue ActiveRecord::RecordNotFound
         @project = nil
       end

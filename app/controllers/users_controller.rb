@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
-  before_action :admin_only
+  #before_action :admin_only
 
   # GET /users
   def index
