@@ -48,8 +48,8 @@ class ProjectsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_project
       begin
-        #@project = Project.joins(:users).where("users.id = ?", current_user.id).where("project.id = ?", params[:id])
-        @project = Project.where("project.id = ?", params[:id])
+        #@project = Project.joins(:users).where("users.id = ?", current_user.id).where("id = ?", params[:id])
+        @project = Project.where("id = ?", params[:id])
       rescue ActiveRecord::RecordNotFound
         @project = nil
       end
