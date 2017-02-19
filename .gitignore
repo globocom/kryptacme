@@ -97,3 +97,4 @@ fabric.properties
 .idea
 !lib
 !bin
+.env-prod
