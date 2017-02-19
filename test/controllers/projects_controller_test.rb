@@ -1,8 +1,11 @@
 require 'test_helper'
 
 class ProjectsControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
     @project = projects(:one)
+    sign_in users(:someone), scope: :admin
   end
 
   test 'should get index' do

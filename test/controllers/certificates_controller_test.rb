@@ -1,8 +1,11 @@
 require 'test_helper'
 
 class CertificatesControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
     @certificate = certificates(:one)
+    sign_in users(:someone), scope: :admin
   end
 
   test 'should get index' do
@@ -38,10 +41,4 @@ class CertificatesControllerTest < ActionDispatch::IntegrationTest
     assert_response 200
   end
 
-  test 'should destroy certificate' do
-    assert_difference('Certificate.count', -1) do
-      delete project_certificate_url(@certificate.project.id, @certificate)
-    end
-    assert_response 204
-  end
 end

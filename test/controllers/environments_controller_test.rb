@@ -1,8 +1,11 @@
 require 'test_helper'
 
 class EnvironmentsControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
     @environment = environments(:one)
+    sign_in users(:someone), scope: :admin
   end
 
   test "should get index" do
