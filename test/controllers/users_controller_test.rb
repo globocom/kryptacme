@@ -5,7 +5,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @user = users(:one)
-    sign_in users(:someone), scope: :admin
+    sign_in users(:one), scope: :admin
   end
 
   test "should get index" do
