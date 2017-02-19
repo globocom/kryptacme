@@ -49,7 +49,7 @@ class ProjectsController < ApplicationController
     def set_project
       begin
         #@project = Project.joins(:users).where("users.id = ?", current_user.id).where("id = ?", params[:id])
-        @project = Project.where("id = ?", params[:id])
+        @project = Project.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         @project = nil
       end
