@@ -46,3 +46,5 @@ gem 'acme-client', '0.5.0'
 
 gem 'sidekiq'
 gem 'sidekiq-cron', '~> 0.4.0'
+
+gem 'dotenv-rails'
