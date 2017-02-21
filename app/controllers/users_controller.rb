@@ -16,9 +16,12 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
-    unless @projects.nil?
-      @project_uniq = (@user.projects + @projects).uniq
-      @user.projects = @project_uniq
+    if params[:user][:projects].present?
+      @projects = Project.find(params[:user][:projects])
+      @tmp_prj = (@user.projects + @projects).uniq
+    end
+    unless @tmp_prj.nil?
+      @user.projects = @tmp_prj
     end
     if @user.update(user_params)
       render json: @user
@@ -36,13 +39,10 @@ class UsersController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       @user = User.includes(:projects).find(params[:id])
-      if params.has_key?(:projects_id)
-        @projects = Project.find(params[:projects_id])
-      end
     end
 
     # Only allow a trusted parameter "white list" through.
     def user_params
-      params.require(:user).permit(:projects_id, :email, :role)
+      params.require(:user).permit(:email, :role)
     end
 end
