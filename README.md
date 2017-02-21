@@ -37,14 +37,21 @@ project_certificates GET    /projects/:project_id/certificates     certificates#
                 root GET    /                                      root#index```
 
 ##Examples
+###Users
+```
+curl -v -HContent-type:application/json -X POST -d "{\"user\":{\"email\": \"user_example\", \"password\": \"password-example\",\"password_confirmation\": \"password-example\", \"role\":3}}" -u $user:$pass http://localhost:3000/users
+```
 ###Projects
 ```
-curl -v -HContent-type:application/json -X POST -d "{\"name\": \"teste\", \"email\": \"teste@teste.com.br\", \"private_pem\": \""}" http://localhost:3000/projects
-curl -v -HContent-type:application/json -X PUT -d "{\"name\": \"teste\", \"email\": \"teste@teste.com.br\", \"private_pem\": \"asd\"}" http://localhost:3000/projects
+curl -v -HContent-type:application/json -X POST -d "{\"name\": \"LocalDomain\", \"email\": \"email@localdomain.com\"}" -u $user:$pass http://localhost:3000/projects
 ```
-
+###Environments
+```
+curl -v -HContent-type:application/json -X POST -d "{ \"name\":\"env1\", \"destination_crt\": \"/tmp/\"}" -u $user:$pass http://localhost:3000/environments
+```
 ###Certificates
 ```
-curl -v -HContent-type:application/json -X POST -d "{\"cn\": \"domain\", "project_id": 5}" http://localhost:3000/projects/123/certificates
-curl -v -HContent-type:application/json -X POST -d "{\"cn\": \"domain\", "project_id": 5}" http://localhost:3000/projects/123/certificates/456
+curl -v -HContent-type:application/json -X POST -d "{"cn": "localdomain.domain.com", "project_id": 1, "environment_id":"1", "csr": "[CSR]", "key": "[KEY]"}" http://localhost:3000/projects/1/certificates
+
+./doc/create-certs-kryptacme.sh localdomain.domain.com 1 1
 ```

@@ -18,7 +18,7 @@ build-iPhoneOS/
 build-iPhoneSimulator/
 /.yardoc/
 /_yardoc/
-/doc/
+#/doc/
 /rdoc/
 /.bundle/
 /vendor/bundle
