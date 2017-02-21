@@ -10,7 +10,7 @@ class Certificate < ApplicationRecord
   scope :contains, -> (cn) { where('cn like ?', "%#{cn}%")}
 
   #attr_accessor :cn, :last_crt, :csr, :key, :project, status, status_detail
-  validates :cn, :project, presence: true
+  validates :cn, :project_id, :environment_id, :csr, :key, presence: true
   after_create :send_request
 
   belongs_to :project

@@ -14,6 +14,8 @@ class User < ApplicationRecord
   scope :starts_with, -> (name) { where('name like ?', "#{name}%")}
   scope :contains, -> (name) { where('name like ?', "%#{name}%")}
 
-  devise :ldap_authenticatable
+  validates :email  , presence: true
+
+  devise :database_authenticatable, :registerable
   has_and_belongs_to_many :projects
 end

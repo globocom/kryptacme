@@ -56,9 +56,6 @@ GEM
       railties (>= 4.1.0, < 5.1)
       responders
       warden (~> 1.2.3)
-    devise_ldap_authenticatable (0.8.5)
-      devise (>= 3.4.1)
-      net-ldap (>= 0.6.0, <= 0.11)
     erubis (2.7.0)
     faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
@@ -172,7 +169,6 @@ DEPENDENCIES
   active_model_serializers (= 0.10.3)
   byebug
   devise
-  devise_ldap_authenticatable
   listen (~> 3.0.5)
   mysql2 (>= 0.3.18, < 0.5)
   net-ldap
@@ -185,4 +181,4 @@ DEPENDENCIES
   unicorn (~> 5.2.0)
 
 BUNDLED WITH
-   1.13.1
+   1.13.7

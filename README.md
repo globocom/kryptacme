@@ -11,23 +11,30 @@
 
 ```
               Prefix Verb   URI Pattern                            Controller#Action
-    new_user_session GET    /users/sign_in(.:format)               devise/sessions#new
-        user_session POST   /users/sign_in(.:format)               devise/sessions#create
-destroy_user_session DELETE /users/sign_out(.:format)              devise/sessions#destroy
+        devise_users POST   /users                                 devise/registrations#create
+               users GET    /users                                 users#index
+                user GET    /users/:id                             users#show
+                     PATCH  /users/:id                             users#update
+                     PUT    /users/:id                             users#update
+                     DELETE /users/:id                             users#destroy
 project_certificates GET    /projects/:project_id/certificates     certificates#index
                      POST   /projects/:project_id/certificates     certificates#create
  project_certificate GET    /projects/:project_id/certificates/:id certificates#show
                      PATCH  /projects/:project_id/certificates/:id certificates#update
                      PUT    /projects/:project_id/certificates/:id certificates#update
-                     DELETE /projects/:project_id/certificates/:id certificates#destroy
             projects GET    /projects                              projects#index
                      POST   /projects                              projects#create
              project GET    /projects/:id                          projects#show
                      PATCH  /projects/:id                          projects#update
                      PUT    /projects/:id                          projects#update
                      DELETE /projects/:id                          projects#destroy
-                root GET    /                                      root#index
-```
+        environments GET    /environments                          environments#index
+                     POST   /environments                          environments#create
+         environment GET    /environments/:id                      environments#show
+                     PATCH  /environments/:id                      environments#update
+                     PUT    /environments/:id                      environments#update
+                     DELETE /environments/:id                      environments#destroy
+                root GET    /                                      root#index```
 
 ##Examples
 ###Projects
