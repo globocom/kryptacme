@@ -8,9 +8,9 @@ class CertificatesController < ApplicationController
   # GET /projects/:project_id/certificates
   def index
     begin
-      @certificates = Certificate.joins(project: :user)
-                                 .where(project: params[:project_id])
-                                 .where(user: current_user)
+      @certificates = Certificate.joins(:project => :users)
+                                 .where("projects.id = ?", params[:project_id])
+                                 .where("users.id = ? ", current_user.id)
                                  .filter(params.slice(:cn, :contains, :starts_with))
       render json: @certificates
     rescue ActiveRecord::RecordNotFound
@@ -56,9 +56,9 @@ class CertificatesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_certificate
       begin
-        @certificate = Certificate.joins(project: :user)
-                                  .where(project: params[:project_id])
-                                  .where(user: current_user)
+        @certificate = Certificate.joins(:project => :users)
+                                  .where("projects.id = ?", params[:project_id])
+                                  .where("users.id = ? ", current_user.id)
                                   .where(id: params[:id]).first!
       rescue ActiveRecord::RecordNotFound
         @certificate = nil
