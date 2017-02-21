@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-
+gem 'bundler', '>= 1.3.0'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
 # Use mysql as the database for Active Record
@@ -23,10 +23,10 @@ gem 'unicorn', '~> 5.2.0'
 gem 'devise'
 gem 'net-ldap'
 
-group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platform: :mri
-end
+#group :development, :test do
+#  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+#  gem 'byebug', platform: :mri
+#end
 
 group :development do
   gem 'listen', '~> 3.0.5'
