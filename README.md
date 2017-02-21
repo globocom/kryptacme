@@ -45,6 +45,10 @@ curl -v -HContent-type:application/json -X POST -d "{\"user\":{\"email\": \"user
 ```
 curl -v -HContent-type:application/json -X POST -d "{\"name\": \"LocalDomain\", \"email\": \"email@localdomain.com\"}" -u $user:$pass http://localhost:3000/projects
 ```
+###Associate Project User
+```
+curl -v -HContent-type:application/json -X PUT -d "{\"user\": {\"projects\": [2,5]}}" -u $user:$pass http://@localhost:3000/users/1
+```
 ###Environments
 ```
 curl -v -HContent-type:application/json -X POST -d "{ \"name\":\"env1\", \"destination_crt\": \"/tmp/\"}" -u $user:$pass http://localhost:3000/environments
