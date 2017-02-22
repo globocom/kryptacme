@@ -154,7 +154,7 @@ class LocalAcme
           #TODO verify if success, because if not, we have delete the domain created for avoid problem with export
         end
       else
-        #TODO return error
+        raise res.body
       end
     else
       id_domain = res_domain[0]['domain']['id']
