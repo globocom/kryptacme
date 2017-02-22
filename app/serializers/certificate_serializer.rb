@@ -1,5 +1,5 @@
 class CertificateSerializer < ActiveModel::Serializer
-  attributes :id, :cn, :last_crt, :csr, :status, :status_detail, :links
+  attributes :id, :created_at, :updated_at, :cn, :last_crt, :csr, :status, :status_detail, :links
 
   def links
     [
