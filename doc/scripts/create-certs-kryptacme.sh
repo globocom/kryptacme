@@ -63,7 +63,7 @@ do
 done < "$domain.key"
 KEY=${KEY:2}
 echo ${KEY:2}
-DOMAIN_DATA="{\"cn\": \"${domain}\", \"project_id\": ${project_id}, \"environment_id\":\"1\", \"csr\": \"$CSR\", \"key\": \"$KEY\"}" 
+DOMAIN_DATA="{\"cn\": \"${domain}\", \"project_id\": ${project_id}, \"environment_id\": ${environment_id}, \"csr\": \"$CSR\", \"key\": \"$KEY\"}"
 echo
 echo "------------------------------------"
 echo "-----Below is your BODY to POST-----"
