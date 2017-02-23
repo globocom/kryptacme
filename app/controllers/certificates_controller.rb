@@ -67,6 +67,6 @@ class CertificatesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def certificate_params
-      params.require(:certificate).permit(:cn, :last_crt, :csr, :key, :project_id, :revoked, :environment_id)
+      params.require(:certificate).permit(:cn, :last_crt, :csr, :key, :project_id, :revoked, :environment_id, :time_renewal)
     end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170222141453) do
+ActiveRecord::Schema.define(version: 20170223191440) do
 
   create_table "certificates", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "cn",                                           null: false
@@ -26,6 +26,7 @@ ActiveRecord::Schema.define(version: 20170222141453) do
     t.datetime "updated_at",                                   null: false
     t.integer  "environment_id"
     t.datetime "expired_at"
+    t.integer  "time_renewal",                 default: 30
     t.index ["cn"], name: "index_certificates_on_cn", unique: true, using: :btree
     t.index ["environment_id"], name: "index_certificates_on_environment_id", using: :btree
     t.index ["project_id"], name: "index_certificates_on_project_id", using: :btree

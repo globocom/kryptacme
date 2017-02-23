@@ -4,10 +4,6 @@ require 'sidekiq-cron'
 class CertificatesRenewalJob
   include Sidekiq::Worker
 
-  def initialize
-    @time_renewal = APP_CONFIG['time_renewal'] * 60 * 60 * 24
-  end
-
   def perform
     begin
       certificates = Certificate.where(status: :valid_rec)
@@ -17,7 +13,7 @@ class CertificatesRenewalJob
         timeNow = Time.now.utc.to_i
         timeCert = openSSLCert.not_after.to_i
         diffTime = timeCert - timeNow
-        if diffTime < @time_renewal
+        if diffTime < (cert.time_renewal * 60 * 60 * 24)
           if cert.auto_renewal
             CertificatesCreateJob.perform_later cert
           else
