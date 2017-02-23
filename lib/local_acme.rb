@@ -43,9 +43,14 @@ class LocalAcme
       crt = client.new_certificate(csr_param)
       crt_pem = crt.to_pem
 
-      path = certificate.environment.destination_crt + "#{certificate.cn}.pem"
-      File.open(path, "w+") do |f|
-        f.write("#{crt_pem}\n#{certificate.key}")
+      path_prefix = certificate.environment.destination_crt + "#{certificate.cn}"
+      path_key = path_prefix + ".key"
+      path_crt = path_prefix + ".crt"
+      File.open(path_crt, "w+") do |f|
+        f.write("#{crt_pem}")
+      end
+      File.open(path_key, "w+") do |f|
+        f.write("#{certificate.key}")
       end
 
       openSSLCert = OpenSSL::X509::Certificate.new(crt_pem)
@@ -129,13 +134,14 @@ class LocalAcme
   end
 
   def add_domain_with_records(domain)
+    domain_root = domain[/\..*/][1..-1]
     id_domain = nil
-    res_domain = search_gdns(domain)
+    res_domain = search_gdns(domain_root)
     if res_domain.empty?
       uri = URI(@gdns_endpoint + '/domains.json')
       req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
       req['X-Auth-Token'] = @gdns_token
-      req.body = {domain: {name: domain, type: "MASTER", ttl: 86400, notes: "A domain", primary_ns: "ns01.#{domain}", contact: "fapesp.corp.globo.com", refresh: 10800, retry: 3600, expire: 604800, minimum: 21600, authority_type: "M"}}.to_json
+      req.body = {domain: {name: domain_root, type: "MASTER", ttl: 86400, notes: "A domain", primary_ns: "ns01.#{domain}", contact: "fapesp.corp.globo.com", refresh: 10800, retry: 3600, expire: 604800, minimum: 21600, authority_type: "M"}}.to_json
       res = Net::HTTP.start(uri.hostname, uri.port) do |http|
         http.request(req)
       end
