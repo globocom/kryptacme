@@ -41,7 +41,7 @@ class LocalAcme
     if challenge.authorization.verify_status == 'valid'
       csr_param = OpenSSL::X509::Request.new(certificate.csr)
       crt = client.new_certificate(csr_param)
-      crt_pem = crt.to_pem
+      crt_pem = crt.fullchain_to_pem
 
       path_prefix = certificate.environment.destination_crt + "#{certificate.cn}"
       path_key = path_prefix + ".key"
@@ -52,6 +52,7 @@ class LocalAcme
       File.open(path_key, "w+") do |f|
         f.write("#{certificate.key}")
       end
+
 
       openSSLCert = OpenSSL::X509::Certificate.new(crt_pem)
 
