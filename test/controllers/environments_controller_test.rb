@@ -5,7 +5,7 @@ class EnvironmentsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @environment = environments(:one)
-    sign_in users(:one), scope: :admin
+    sign_in users(:one)
   end
 
   test "should get index" do
