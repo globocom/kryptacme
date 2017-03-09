@@ -99,3 +99,4 @@ fabric.properties
 !bin
 .env-prod
 kryptacme.iml
+public/scripts/libs
