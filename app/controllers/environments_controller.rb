@@ -4,7 +4,7 @@ class EnvironmentsController < ApplicationController
 
   # GET /environments
   def index
-    @environments = Environment.all
+    @environments = Environment.filter(params.slice(:n, :contains, :starts_with))
 
     render json: @environments
   end

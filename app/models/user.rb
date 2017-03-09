@@ -9,10 +9,9 @@ class User < ApplicationRecord
     self.role ||= :register
   end
 
-  scope :n, -> (name) { where name: name }
   scope :email, -> (email) { where email: email }
-  scope :starts_with, -> (name) { where('name like ?', "#{name}%")}
-  scope :contains, -> (name) { where('name like ?', "%#{name}%")}
+  scope :starts_with, -> (email) { where('email like ?', "#{email}%")}
+  scope :contains, -> (email) { where('email like ?', "%#{email}%")}
 
   validates :email  , presence: true
 

@@ -4,7 +4,7 @@ class UserSerializer < ActiveModel::Serializer
   def links
     [
         {rel: 'self', href: "#{ApplicationController.hostname}/users/#{object.id}"},
-        {rel: 'search', href: "#{ApplicationController.hostname}/users{?n,email,contains,starts_with}"}
+        {rel: 'search', href: "#{ApplicationController.hostname}/users{?email,contains,starts_with}"}
     ]
   end
 end

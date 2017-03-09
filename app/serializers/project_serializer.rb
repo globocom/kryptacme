@@ -5,7 +5,7 @@ class ProjectSerializer < ActiveModel::Serializer
     [
         {rel: 'self', href: "#{ApplicationController.hostname}/projects/#{object.id}"},
         {rel: 'certificates', href: "#{ApplicationController.hostname}/projects/#{object.id}/certificates"},
-        {rel: 'search', href: "#{ApplicationController.hostname}/projects{?n,email,contains,starts_with}"}
+        {rel: 'search', href: "#{ApplicationController.hostname}/projects{?n,contains,starts_with}"}
     ]
   end
 end

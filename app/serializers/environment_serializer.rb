@@ -4,7 +4,7 @@ class EnvironmentSerializer < ActiveModel::Serializer
   def links
     [
         {rel: 'self', href: "#{ApplicationController.hostname}/environments/#{object.id}"},
-        {rel: 'search', href: "#{ApplicationController.hostname}/environments{?cn,contains,starts_with}"}
+        {rel: 'search', href: "#{ApplicationController.hostname}/environments{?n,contains,starts_with}"}
     ]
   end
 

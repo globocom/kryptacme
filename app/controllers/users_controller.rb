@@ -4,7 +4,7 @@ class UsersController < ApplicationController
 
   # GET /users
   def index
-    @users = User.all
+    @users = User.filter(params.slice(:email, :contains, :starts_with))
 
     render json: @users
   end
