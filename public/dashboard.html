@@ -1,0 +1,194 @@
+<!DOCTYPE html >
+<html lang="en" ng-app="kryptacme">
+<head>
+    <title>KryptACME</title>
+
+    <link href="scripts/libs/bootstrap/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link href="css/paper.css" rel="stylesheet">
+    <link href="scripts/libs/font-awesome/css/font-awesome.min.css"
+          rel="stylesheet">
+    <link href="css/main.css"
+          rel="stylesheet">
+</head>
+
+<body>
+<div class="container main-content" ng-controller="KryptController">
+    <div class="push">
+
+        <div class="brd agl afz">
+            <h3 class="bre brf">Quick stats</h3>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="icon-big icon-warning text-center">
+                                    <i class="fa fa-th"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-7">
+                                <div class="numbers">
+                                    <p>Projects</p>
+                                    {{ krypt.stats.project || 0 }}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="icon-big icon-success text-center">
+                                    <i class="fa fa-lock"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-7">
+                                <div class="numbers">
+                                    <p>Certificates</p>
+                                    {{ krypt.stats.certs }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="icon-big icon-warning text-center">
+                                    <i class="fa fa-lock"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-7">
+                                <div class="numbers">
+                                    <p>Expiring</p>
+                                    {{ krypt.stats.certs_to_expire || 0 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="icon-big icon-danger text-center">
+                                    <i class="fa fa-lock"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-7">
+                                <div class="numbers">
+                                    <p>Expired</p>
+                                    {{ krypt.stats.certs_expired || 0 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="brd agl afz">
+            <h3 class="bre brf">Expiring certificates</h3>
+        </div>
+
+        <div class="card panel" ng-if="krypt.expiring_certs.length > 0">
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>CN</th>
+                            <th>Expire</th>
+                            <th>Days to expire</th>
+                            <th>Auto Renew</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="cert in krypt.expiring_certs">
+                            <td>{{ cert.cn }}</td>
+                            <td>{{ cert.expired_at | date : "HH:mm:ss dd/MM/yyyy" }}</td>
+                            <td>{{ cert.days_to_expire }}</td>
+                            <td>{{ cert.auto_renewal }}</td>
+                            <td>{{ cert.status }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="brd agl afz">
+            <h3 class="bre brf">Your Projects</h3>
+        </div>
+
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            <div class="panel card" ng-repeat="data in krypt.projects">
+                <div class="panel-heading" role="tab" id="heading{{ data.id }}">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ data.id }}" aria-expanded="false" aria-controls="collapse{{ data.id }}">
+                            #{{ data.id }} - {{ data.name }} - {{ data.email }}
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse{{ data.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ data.id }}">
+                    <div class="panel-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>CN</th>
+                                    <th>Expire</th>
+                                    <th>Days to expire</th>
+                                    <th>Auto Renew</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="cert in data.certs">
+                                    <td>{{ cert.cn }}</td>
+                                    <td>{{ cert.expired_at | date : "HH:mm:ss dd/MM/yyyy" }}</td>
+                                    <td>{{ cert.days_to_expire }}</td>
+                                    <td>{{ cert.auto_renewal }}</td>
+                                    <td>{{ cert.status }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <div class="pull-left">Copyright &copy; Globo.com</div>
+        <div class="pull-right">
+            A-Team <i class="fa fa-smile-o"></i>
+        </div>
+    </div>
+</footer>
+
+<script src="scripts/libs/jquery/dist/jquery.min.js"></script>
+<script src="scripts/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="scripts/libs/angular/angular.min.js"></script>
+<script src="scripts/libs/angular-resource/angular-resource.min.js"></script>
+<script src="scripts/libs/angular-hateoas/src/angular-hateoas.js"></script>
+<script src="scripts/libs/moment/moment.js"></script>
+<script src="scripts/libs/angular-moment/angular-moment.min.js"></script>
+
+<script src="scripts/main.js"></script>
+
+</body>
+</html>
