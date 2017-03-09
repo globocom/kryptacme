@@ -33,7 +33,7 @@ app.service('KryptService', function ($resource, moment) {
                         item['certs'] = certs;
                         angular.forEach(certs, function (cert) {
                             cert_date = moment(cert.expired_at).diff(today, 'days');
-                            if (cert_date > 0 && cert_date < 90) {
+                            if (cert_date > 0 && cert_date < 20) {
                                 cert['days_to_expire'] = cert_date;
                                 self.expiring_certs.push(cert);
                                 self.stats.certs_to_expire++;
