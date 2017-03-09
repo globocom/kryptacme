@@ -5,7 +5,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @user = users(:one)
-    sign_in users(:one), scope: :admin
+    sign_in users(:one)
   end
 
   test "should get index" do
@@ -15,10 +15,10 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "should create user" do
     assert_difference('User.count') do
-      post users_url, params: { user: {  } }
+      post users_url, params: { user: { :email => 'user_creted@test.com' } }
     end
 
-    assert_response 201
+    assert_response 200
   end
 
   test "should show user" do
@@ -27,7 +27,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update user" do
-    patch user_url(@user), params: { user: {  } }
+    patch user_url(@user), params: { user: { :email => 'test@test.com' } }
     assert_response 200
   end
 

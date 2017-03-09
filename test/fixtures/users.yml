@@ -1,6 +1,10 @@
 one:
-  email: teste+1@localhost
+  email: 'teste@localhost'
+  role: 3
+  encrypted_password: '$2a$11$3M.f0ZrGjhB6alIkzTwoWeWjZpKRUzNSMLzxVfi.cik51tdeYlrza'
   reset_password_token: xxx
 two:
   email: teste+2@localhost
+  role: 3
+  encrypted_password: $2a$11$3M.f0ZrGjhB6alIkzTwoWeWjZpKRUzNSMLzxVfi.cik51tdeYlrza
   reset_password_token: yyy

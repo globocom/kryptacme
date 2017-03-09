@@ -29,7 +29,7 @@ test:
   database: kryptacme_test
   username: root
   host: 127.0.0.1
-  password: password
+  password:
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is

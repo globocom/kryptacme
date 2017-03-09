@@ -29,8 +29,8 @@ class ApplicationController < ActionController::API
 
   def authorization
     current_action = params[:action]
-    write_admin = current_user.write? || current_user.admin?
-    read = current_user.read? && (['index','show'].include? current_action)
+    write_admin = current_user.present? && (current_user.write? || current_user.admin?)
+    read = current_user.present? && current_user.read? && (['index','show'].include? current_action)
     unless write_admin || read
       render :json => {message: 'Authorization - Access Denied'}, status: 403
     end
