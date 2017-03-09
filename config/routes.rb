@@ -9,6 +9,8 @@ Rails.application.routes.draw do
       resources :certificates, :except => [:destroy]
     end
     resources :environments
+
+    get '/dashboard', :to => redirect('/dashboard.html')
   end
 
   root 'root#index'
