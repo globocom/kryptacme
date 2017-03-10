@@ -5,6 +5,7 @@ class EnvironmentsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @environment = environments(:one)
+    @environment_delete = environments(:two)
     sign_in users(:one)
   end
 
@@ -33,7 +34,7 @@ class EnvironmentsControllerTest < ActionDispatch::IntegrationTest
 
   test "should destroy environment" do
     assert_difference('Environment.count', -1) do
-      delete environment_url(@environment)
+      delete environment_url(@environment_delete)
     end
 
     assert_response 204

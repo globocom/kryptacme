@@ -49,3 +49,5 @@ gem 'sidekiq'
 gem 'sidekiq-cron', '~> 0.4.0'
 
 gem 'dotenv-rails'
+
+gem 'mocha'

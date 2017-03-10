@@ -40,7 +40,7 @@ class ProjectsController < ApplicationController
 
   # DELETE /projects/1
   def destroy
-    @project.destroy
+    Project.destroy(params[:id])
   end
 
   private
@@ -55,6 +55,6 @@ class ProjectsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def project_params
-      params.require(:project).permit(:name, :email, :pkcs12, :private_pem)
+      params.require(:project).permit(:id, :name, :email, :pkcs12, :private_pem)
     end
 end

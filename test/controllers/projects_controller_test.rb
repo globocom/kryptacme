@@ -5,7 +5,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @project = projects(:one)
-    sign_in users(:one), scope: :admin
+    sign_in users(:one)
   end
 
   test 'should get index' do
@@ -14,6 +14,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should create project' do
+    Project.any_instance.stubs(:acme_register).returns(false)
     assert_difference('Project.count') do
       post projects_url, params: { project: {
           email: "#{@project.email}.com",

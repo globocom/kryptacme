@@ -40,7 +40,7 @@ class CertificatesController < ApplicationController
   # PATCH/PUT /projects/:project_id/certificates/:id
   def update
     if @certificate.update(certificate_params)
-      CertificatesCreateJob.perform_later @certificate
+      send_create_certificate
       render json: @certificate
     else
       render json: @certificate.errors, status: :unprocessable_entity
@@ -71,4 +71,9 @@ class CertificatesController < ApplicationController
     def certificate_params
       params.require(:certificate).permit(:cn, :last_crt, :csr, :key, :project_id, :revoked, :environment_id, :time_renewal, :auto_renewal)
     end
+
+  private
+  def send_create_certificate
+    CertificatesCreateJob.perform_later @certificate
+  end
 end
