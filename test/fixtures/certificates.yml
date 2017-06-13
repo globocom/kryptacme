@@ -15,3 +15,10 @@ two:
   key: x
   project: two
   environment: one
+
+three:
+  cn: site3
+  last_crt: x
+  csr: x
+  key: x
+  project: one
