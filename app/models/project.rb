@@ -14,6 +14,13 @@ class Project < ApplicationRecord
 
   private
   def acme_register
-    LocalAcme.instance.register_project(self)
+    begin
+      LocalAcme.instance.register_project(self)
+    rescue => e
+      puts e.message
+      puts e.backtrace.join("\n")
+      logger.warn "Unable to register acme: #{e}"
+      raise
+    end
   end
 end
