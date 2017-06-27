@@ -45,16 +45,17 @@ class LocalAcme
       crt = client.new_certificate(csr_param)
       crt_pem = crt.fullchain_to_pem
 
-      path_prefix = certificate.environment.destination_crt + "#{certificate.cn}"
-      path_key = path_prefix + ".key"
-      path_crt = path_prefix + ".crt"
-      File.open(path_crt, "w+") do |f|
-        f.write("#{crt_pem}")
+      unless certificate.environment.nil?
+        path_prefix = certificate.environment.destination_crt + "#{certificate.cn}"
+        path_key = path_prefix + ".key"
+        path_crt = path_prefix + ".crt"
+        File.open(path_crt, "w+") do |f|
+          f.write("#{crt_pem}")
+        end
+        File.open(path_key, "w+") do |f|
+          f.write("#{certificate.key}")
+        end
       end
-      File.open(path_key, "w+") do |f|
-        f.write("#{certificate.key}")
-      end
-
 
       openSSLCert = OpenSSL::X509::Certificate.new(crt_pem)
 

@@ -6,7 +6,7 @@ class CertificatesRenewalJob
 
   def perform
     begin
-      certificates = Certificate.where(status: :valid_rec)
+      certificates = Certificate.where(status: [:valid_rec, :error])
       certificates.each do |cert|
         begin
         openSSLCert = OpenSSL::X509::Certificate.new(cert.last_crt)
