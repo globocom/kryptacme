@@ -6,5 +6,5 @@ one:
 two:
   email: teste+2@localhost
   role: 3
-  encrypted_password: $2a$11$3M.f0ZrGjhB6alIkzTwoWeWjZpKRUzNSMLzxVfi.cik51tdeYlrza
+  encrypted_password: '$2a$11$3M.f0ZrGjhB6alIkzTwoWeWjZpKRUzNSMLzxVfi.cik51tdeYlrza'
   reset_password_token: yyy

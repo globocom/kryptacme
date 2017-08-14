@@ -8,10 +8,16 @@ class CertificatesController < ApplicationController
   # GET /projects/:project_id/certificates
   def index
     begin
-      @certificates = Certificate.joins(:project => :users)
-                                 .where(:projects => {:id => params[:project_id]})
-                                 .where(:users => {:id => current_user.id})
-                                 .filter(params.slice(:cn, :contains, :starts_with))
+      if current_user.admin?
+        @certificates = Certificate.joins(:project => :users)
+                                   .where(:projects => {:id => params[:project_id]})
+                                   .filter(params.slice(:cn, :contains, :starts_with))
+      else
+        @certificates = Certificate.joins(:project => :users)
+                                   .where(:projects => {:id => params[:project_id]})
+                                   .where(:users => {:id => current_user.id})
+                                   .filter(params.slice(:cn, :contains, :starts_with))
+      end
       render json: @certificates
     rescue ActiveRecord::RecordNotFound
       render :head => true, :status => :not_found
@@ -58,10 +64,17 @@ class CertificatesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_certificate
       begin
-        @certificate = Certificate.joins(:project => :users)
-                                  .where(:projects => {:id => params[:project_id]})
-                                  .where(:users => {:id => current_user.id})
-                                  .where(id: params[:id]).first!
+        if current_user.admin?
+          @certificate = Certificate.joins(:project => :users)
+                                    .where(:projects => {:id => params[:project_id]})
+                                    .where(id: params[:id]).first!
+        else
+          @certificate = Certificate.joins(:project => :users)
+                                    .where(:projects => {:id => params[:project_id]})
+                                    .where(:users => {:id => current_user.id})
+                                    .where(id: params[:id]).first!
+
+        end
       rescue ActiveRecord::RecordNotFound
         @certificate = nil
       end
