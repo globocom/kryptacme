@@ -39,19 +39,25 @@ class CertificatesController < ApplicationController
 
   # PATCH/PUT /projects/:project_id/certificates/:id
   def update
-    if @certificate.update(certificate_params)
-      send_create_certificate
-      render json: @certificate
+    if @certificate.nil?
+        render :head => true, :status => :not_found
     else
-      render json: @certificate.errors, status: :unprocessable_entity
+      if @certificate.update(certificate_params)
+        if certificate_params[:revoked]
+          send_revoke_certificate
+        else
+          send_create_certificate
+        end
+        render json: @certificate
+      else
+        render json: @certificate.errors, status: :unprocessable_entity
+      end
     end
   end
 
   # DELETE /projects/:project_id/certificates/:id
   def destroy
-    if @certificate.destroy
-      CertificatesRevokeJob.perform_later @certificate
-    end
+    @certificate.destroy
   end
 
   private
@@ -75,5 +81,10 @@ class CertificatesController < ApplicationController
   private
   def send_create_certificate
     CertificatesCreateJob.perform_later @certificate
+  end
+  private
+
+  def send_revoke_certificate
+    CertificatesRevokeJob.perform_later @certificate
   end
 end
