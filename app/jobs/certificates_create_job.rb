@@ -4,6 +4,7 @@ class CertificatesCreateJob < ApplicationJob
 
   def perform(certificate)
     begin
+      certificate.pendent!
       LocalAcme.instance.request_cert(certificate)
     rescue => e
       puts e.message
