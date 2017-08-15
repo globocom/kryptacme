@@ -22,10 +22,15 @@ class ProjectsController < ApplicationController
   def create
     @project = Project.new(project_params)
     @project.private_pem = OpenSSL::PKey::RSA.new(4096).to_pem
-    if @project.save
-      render json: @project, status: :created, location: @project
-    else
-      render json: @project.errors, status: :unprocessable_entity
+    @project.transaction do
+      if @project.save
+        user = User.find(current_user.id)
+        user.projects << @project
+        user.save
+        render json: @project, status: :created, location: @project
+      else
+        render json: @project.errors, status: :unprocessable_entity
+      end
     end
   end
 
