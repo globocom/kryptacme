@@ -5,7 +5,11 @@ class ProjectsController < ApplicationController
 
   # GET /projects
   def index
-    @projects = Project.joins(:users).where(:users => {:id => current_user.id}).filter(params.slice(:n, :email, :contains, :starts_with))
+    if current_user.admin?
+      @projects = Project.all.filter(params.slice(:n, :email, :contains, :starts_with))
+    else
+      @projects = Project.joins(:users).where(:users => {:id => current_user.id}).filter(params.slice(:n, :email, :contains, :starts_with))
+    end
     render json: @projects
   end
 
@@ -22,10 +26,15 @@ class ProjectsController < ApplicationController
   def create
     @project = Project.new(project_params)
     @project.private_pem = OpenSSL::PKey::RSA.new(4096).to_pem
-    if @project.save
-      render json: @project, status: :created, location: @project
-    else
-      render json: @project.errors, status: :unprocessable_entity
+    @project.transaction do
+      if @project.save
+        user = User.find(current_user.id)
+        user.projects << @project
+        user.save
+        render json: @project, status: :created, location: @project
+      else
+        render json: @project.errors, status: :unprocessable_entity
+      end
     end
   end
 
@@ -47,7 +56,11 @@ class ProjectsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_project
       begin
-        @project = Project.joins(:users).where(:users => {:id => current_user.id}).where(:projects => {:id => params[:id]})
+        if current_user.admin?
+          @project = Project.find(params[:id])
+        else
+          @project = Project.joins(:users).where(:users => {:id => current_user.id}).where(:projects => {:id => params[:id]})
+        end
       rescue ActiveRecord::RecordNotFound
         @project = nil
       end
