@@ -88,6 +88,7 @@ GEM
       metaclass (~> 0.0.1)
     multipart-post (2.0.0)
     mysql2 (0.4.5)
+    net-dns (0.8.0)
     net-ldap (0.15.0)
     nio4r (1.2.1)
     nokogiri (1.7.0.1)
@@ -179,6 +180,7 @@ DEPENDENCIES
   listen (~> 3.0.5)
   mocha
   mysql2 (>= 0.3.18, < 0.5)
+  net-dns (= 0.8.0)
   net-ldap
   rails (~> 5.0.0, >= 5.0.0.1)
   sidekiq

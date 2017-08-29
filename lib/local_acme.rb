@@ -2,6 +2,7 @@ require 'acme-client'
 require 'singleton'
 require 'openssl'
 require 'net/http'
+require 'net/dns'
 
 class LocalAcme
   include Singleton
@@ -10,6 +11,7 @@ class LocalAcme
     @acme_endpoint = APP_CONFIG['acme_endpoint']
     @gdns_endpoint = APP_CONFIG['gdns_endpoint']
     @gdns_token = APP_CONFIG['gdns_token']
+    @server_dns = APP_CONFIG['server_dns']
   end
 
   def register_project(project)
@@ -137,8 +139,15 @@ class LocalAcme
     return domains_res
   end
 
+  def get_domain_root(domain)
+    res = Net::DNS::Resolver.new(:nameservers => @server_dns, :recursive => true)
+    p res
+    packet = res.query("#{domain}", Net::DNS::SOA)
+    return packet.authority.first.name
+  end
+
   def add_domain_with_records(domain)
-    domain_root = domain[/\..*/][1..-1]
+    domain_root = get_domain_root(domain)
     id_domain = nil
     res_domain = search_gdns(domain_root)
     if res_domain.empty?
