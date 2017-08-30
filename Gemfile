@@ -51,3 +51,5 @@ gem 'sidekiq-cron', '~> 0.4.0'
 gem 'dotenv-rails'
 
 gem 'mocha'
+
+gem 'net-dns', '0.8.0'
