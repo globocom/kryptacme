@@ -148,6 +148,7 @@ class LocalAcme
 
   def add_domain_with_records(domain)
     domain_root = get_domain_root(domain)
+    domain_root = domain_root.gsub(/\.$/, '')
     id_domain = nil
     res_domain = search_gdns(domain_root)
     if res_domain.empty?
