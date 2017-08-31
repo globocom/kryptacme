@@ -33,10 +33,23 @@ class LocalAcme
       challenge = authorization.dns01
       token = challenge.record_content
       add_dns_txt(certificate.cn, token)
-      CertificatesChallengeJob.set(wait: 3.minutes).perform_later(certificate,authorization.uri) #TODO move to job or controller
+      CertificatesChallengeJob.set(wait: 3.minutes).perform_later(certificate,authorization.uri, token, 1) #TODO move to job or controller
   end
 
-  def challenge(certificate, authorization)
+  def challenge(certificate, authorization, token, attempts)
+    res = Net::DNS::Resolver.new(:nameservers => @server_dns, :recursive => true)
+    p res
+    packet = res.query("_acme-challenge.#{certificate.cn}", Net::DNS::TXT)
+    unless packet.strings.include? token
+      if attempts <= 3
+        puts "#{attempts} attempts. Token #{token} not found in txt dns for #{certificate.cn}. Sending again..."
+        attempts += 1
+        CertificatesChallengeJob.set(wait: 3.minutes).perform_later(certificate,authorization, token, attempts)
+      else
+        raise "Token #{token} _acme-challenge not found in txt for #{certificate.cn}."
+      end
+    end
+
     client = _new_client(certificate.project)
     challenge = client.fetch_authorization(authorization).dns01
     challenge.request_verification
