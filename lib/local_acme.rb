@@ -40,11 +40,19 @@ class LocalAcme
     res = Net::DNS::Resolver.new(:nameservers => @server_dns, :recursive => true)
     p res
     packet = res.query("_acme-challenge.#{certificate.cn}", Net::DNS::TXT)
-    unless packet.strings.include? token
+    found_txt = false
+    packet.answer.each do |rr|
+      if rr.txt.strip == token
+        found_txt = true
+        break
+      end
+    end
+    unless found_txt
       if attempts <= 3
         puts "#{attempts} attempts. Token #{token} not found in txt dns for #{certificate.cn}. Sending again..."
         attempts += 1
         CertificatesChallengeJob.set(wait: 3.minutes).perform_later(certificate,authorization, token, attempts)
+        return
       else
         raise "Token #{token} _acme-challenge not found in txt for #{certificate.cn}."
       end
