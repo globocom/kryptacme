@@ -33,7 +33,7 @@ class LocalAcme
       challenge = authorization.dns01
       token = challenge.record_content
       add_dns_txt(certificate.cn, token)
-      CertificatesChallengeJob.set(wait: 3.minutes).perform_later(certificate,authorization.uri, token, 1) #TODO move to job or controller
+      CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization.uri, token, 1) #TODO move to job or controller
   end
 
   def challenge(certificate, authorization, token, attempts)
@@ -48,10 +48,10 @@ class LocalAcme
       end
     end
     unless found_txt
-      if attempts <= 3
+      if attempts <= 20
         puts "#{attempts} attempts. Token #{token} not found in txt dns for #{certificate.cn}. Sending again..."
         attempts += 1
-        CertificatesChallengeJob.set(wait: 3.minutes).perform_later(certificate,authorization, token, attempts)
+        CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization, token, attempts)
         return
       else
         raise "Token #{token} _acme-challenge not found in txt for #{certificate.cn}."
