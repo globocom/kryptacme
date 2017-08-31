@@ -43,6 +43,7 @@ class LocalAcme
     found_txt = false
     packet.answer.each do |rr|
       if rr.txt.strip == token
+        puts "Found txt register for #{certificate.cn}"
         found_txt = true
         break
       end
@@ -62,7 +63,15 @@ class LocalAcme
     challenge = client.fetch_authorization(authorization).dns01
     challenge.request_verification
     sleep(2)
-    challenge.authorization.verify_status
+    count = 0
+    while challenge.authorization.verify_status == 'pending'
+      sleep(2)
+      if count < 60
+        count += 1
+      else
+        raise "LentsEncrypt: authorization kept pending for a long time"
+      end
+    end
     if challenge.authorization.verify_status == 'valid'
       csr_param = OpenSSL::X509::Request.new(certificate.csr)
       crt = client.new_certificate(csr_param)
