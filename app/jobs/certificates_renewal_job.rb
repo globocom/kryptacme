@@ -9,17 +9,21 @@ class CertificatesRenewalJob
       certificates = Certificate.where(status: [:valid_rec, :error])
       certificates.each do |cert|
         begin
-        openSSLCert = OpenSSL::X509::Certificate.new(cert.last_crt)
-        timeNow = Time.now.utc.to_i
-        timeCert = openSSLCert.not_after.to_i
-        diffTime = timeCert - timeNow
-        if diffTime < (cert.time_renewal * 60 * 60 * 24)
-          if cert.auto_renewal
+          if cert.last_crt.nil?
             CertificatesCreateJob.perform_later cert
-          else
-            diffTime <= 0 ? cert.expired! : cert.warning!
+            next
           end
-        end
+          openSSLCert = OpenSSL::X509::Certificate.new(cert.last_crt)
+          timeNow = Time.now.utc.to_i
+          timeCert = openSSLCert.not_after.to_i
+          diffTime = timeCert - timeNow
+          if diffTime < (cert.time_renewal * 60 * 60 * 24)
+            if cert.auto_renewal
+              CertificatesCreateJob.perform_later cert
+            else
+              diffTime <= 0 ? cert.expired! : cert.warning!
+            end
+          end
         rescue => e
           puts e.message
           puts e.backtrace.join("\n")
