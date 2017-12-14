@@ -110,7 +110,7 @@ class LocalAcme
     private_key = OpenSSL::PKey::RSA.new(pem)
     client = Acme::Client.new(private_key: private_key,
                               endpoint: @acme_endpoint,
-                              connection_options: {request: {open_timeout: 5, timeout: 5}})
+                              connection_options: {request: {open_timeout: 60, timeout: 60}})
     raise "Some error happined when create client with LetsEncrypt" if client.nil?
     return client
   end
