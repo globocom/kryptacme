@@ -2,12 +2,12 @@
 
 ## Goal
 
-- RESTcentric 
+- RESTcentric
 - LE Accounts management
-- Promove centralized keys storage
+- Promote centralized keys storage
 - DNS integration
 
-##Routers available
+## Routers available
 
 ```
               Prefix Verb   URI Pattern                            Controller#Action
@@ -35,25 +35,36 @@ project_certificates GET    /projects/:project_id/certificates     certificates#
                      PUT    /environments/:id                      environments#update
                      DELETE /environments/:id                      environments#destroy
                 root GET    /                                      root#index```
+```
 
-##Examples
-###Users
+## Examples
+
+### Users
+
 ```
 curl -v -HContent-type:application/json -X POST -d "{\"user\":{\"email\": \"user_example\", \"password\": \"password-example\",\"password_confirmation\": \"password-example\", \"role\":3}}" -u $user:$pass http://localhost:3000/users
 ```
-###Projects
+
+### Projects
+
 ```
 curl -v -HContent-type:application/json -X POST -d "{\"name\": \"LocalDomain\", \"email\": \"email@localdomain.com\"}" -u $user:$pass http://localhost:3000/projects
 ```
-###Associate Project User
+
+### Associate Project User
+
 ```
 curl -v -HContent-type:application/json -X PUT -d "{\"user\": {\"projects\": [2,5]}}" -u $user:$pass http://@localhost:3000/users/1
 ```
-###Environments
+
+### Environments
+
 ```
 curl -v -HContent-type:application/json -X POST -d "{ \"name\":\"env1\", \"destination_crt\": \"/tmp/\"}" -u $user:$pass http://localhost:3000/environments
 ```
-###Certificates
+
+### Certificates
+
 ```
 curl -v -HContent-type:application/json -X POST -d "{"cn": "localdomain.domain.com", "project_id": 1, "environment_id":"1", "csr": "[CSR]", "key": "[KEY]"}" http://localhost:3000/projects/1/certificates
 
