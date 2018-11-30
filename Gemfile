@@ -43,7 +43,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :jruby]
 gem 'active_model_serializers', '0.10.3'
 
 # acme-client
-gem 'acme-client', '0.6.1'
+gem 'acme-client', '2.0.1'
 
 gem 'sidekiq'
 gem 'sidekiq-cron', '~> 0.4.0'

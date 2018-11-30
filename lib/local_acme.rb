@@ -4,11 +4,13 @@ require 'openssl'
 require 'net/http'
 require 'net/dns'
 
+OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
+
 class LocalAcme
   include Singleton
 
   def initialize
-    @acme_endpoint = APP_CONFIG['acme_endpoint']
+    @acme_endpoint = APP_CONFIG['acme_endpoint']+"/dir"
     @gdns_endpoint = APP_CONFIG['gdns_endpoint']
     @gdns_token = APP_CONFIG['gdns_token']
     @server_dns = APP_CONFIG['server_dns']
@@ -28,12 +30,15 @@ class LocalAcme
   end
 
   def request_cert(certificate)
-      client = _new_client(certificate.project)
-      authorization = client.authorize(domain: certificate.cn)
-      challenge = authorization.dns01
-      token = challenge.record_content
-      add_dns_txt(certificate.cn, token)
-      CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization.uri, token, 1) #TODO move to job or controller
+    client = _new_client(certificate.project)
+    print("\ncertificate.cn: #{certificate.cn}\n")
+    order = client.new_order(identifiers: certificate.cn)
+    authorizations = order.authorizations
+    authorization = authorizations.first
+    challenge = authorization.dns01
+    token = challenge.record_content
+    add_dns_txt(certificate.cn, token)
+    CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization.url, token, 1) #TODO move to job or controller
   end
 
   def challenge(certificate, authorization, token, attempts)
@@ -60,19 +65,19 @@ class LocalAcme
     end
 
     client = _new_client(certificate.project)
-    challenge = client.fetch_authorization(authorization).dns01
-    challenge.request_verification
+    challenge = client.authorization(url: authorization).dns01
+    challenge.request_validation
     sleep(2)
     count = 0
-    while challenge.authorization.verify_status == 'pending'
+    while challenge.status == 'pending'
       sleep(2)
       if count < 60
         count += 1
       else
-        raise "LentsEncrypt: authorization kept pending for a long time"
+        raise "LetsEncrypt: authorization kept pending for a long time"
       end
     end
-    if challenge.authorization.verify_status == 'valid'
+    if challenge.status == 'valid'
       csr_param = OpenSSL::X509::Request.new(certificate.csr)
       crt = client.new_certificate(csr_param)
       crt_pem = crt.fullchain_to_pem
@@ -109,7 +114,7 @@ class LocalAcme
     pem = project.private_pem.split('@').join(10.chr)
     private_key = OpenSSL::PKey::RSA.new(pem)
     client = Acme::Client.new(private_key: private_key,
-                              endpoint: @acme_endpoint,
+                              directory: @acme_endpoint,
                               connection_options: {request: {open_timeout: 60, timeout: 60}})
     raise "Some error happined when create client with LetsEncrypt" if client.nil?
     return client
@@ -117,8 +122,8 @@ class LocalAcme
 
   def _register_client(client, project, agree=false)
     contact = "mailto:#{project.email}".freeze
-    registration = client.register(contact: contact)
-    registration.agree_terms if agree and !registration.nil?
+    registration = client.new_account(contact: contact, terms_of_service_agreed: true)
+    # registration.agree_terms if agree and !registration.nil?
   end
 
   def add_dns_txt(domain, token) #TODO verify status http code to return error or success
