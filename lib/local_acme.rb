@@ -32,6 +32,7 @@ class LocalAcme
   def request_cert(certificate)
     client = _new_client(certificate.project)
     print("\ncertificate.cn: #{certificate.cn}\n")
+    # todo: check if account exists and improve callback (error message) if not.
     order = client.new_order(identifiers: certificate.cn)
     authorizations = order.authorizations
     authorization = authorizations.first
