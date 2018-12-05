@@ -52,4 +52,4 @@ gem 'dotenv-rails'
 
 gem 'mocha'
 
-gem 'net-dns', '0.8.0'
+gem 'net-dns', :git => 'https://github.com/tuxmonteiro/net-dns.git', :branch => 'wildcards'
