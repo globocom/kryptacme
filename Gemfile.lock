@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/tuxmonteiro/net-dns.git
-  revision: 91a16ab0b95f4e20cfb1edc38eb8b70ba9d3430b
+  revision: 3e0f82ca78f48c0c271dc47de54fd61d5f74e205
   branch: wildcards
   specs:
     net-dns (0.9.0)
