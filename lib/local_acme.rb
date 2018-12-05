@@ -183,6 +183,8 @@ class LocalAcme
     res = Net::DNS::Resolver.new(:nameservers => @server_dns, :recursive => true)
     p res
     packet = res.query("#{domain}", Net::DNS::SOA)
+    # CNAME?
+    packet = resolver.query(packet.each_address.first.cname, Net::DNS::SOA) if packet.authority.first == nil
     return packet.authority.first.name
   end
 
