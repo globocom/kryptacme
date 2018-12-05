@@ -31,18 +31,16 @@ class LocalAcme
 
   def request_cert(certificate)
     client = _new_client(certificate.project)
-    print("\ncertificate.cn: #{certificate.cn}\n")
-    # todo: check if account exists and improve callback (error message) if not.
     order = client.new_order(identifiers: certificate.cn)
     authorizations = order.authorizations
     authorization = authorizations.first
     challenge = authorization.dns01
     token = challenge.record_content
     add_dns_txt(certificate.cn, token)
-    CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization.url, token, 1) #TODO move to job or controller
+    CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization.url, token, 1, order.url) #TODO move to job or controller
   end
 
-  def challenge(certificate, authorization, token, attempts)
+  def challenge(certificate, authorization, token, attempts, order)
     res = Net::DNS::Resolver.new(:nameservers => @server_dns, :recursive => true)
     p res
     packet = res.query("_acme-challenge.#{certificate.cn}", Net::DNS::TXT)
@@ -71,6 +69,7 @@ class LocalAcme
     sleep(2)
     count = 0
     while challenge.status == 'pending'
+      challenge.reload
       sleep(2)
       if count < 60
         count += 1
@@ -79,9 +78,14 @@ class LocalAcme
       end
     end
     if challenge.status == 'valid'
-      csr_param = OpenSSL::X509::Request.new(certificate.csr)
-      crt = client.new_certificate(csr_param)
-      crt_pem = crt.fullchain_to_pem
+      csr = Acme::Client::CertificateRequest.new(common_name: certificate.cn)
+      order = client.order(url: order)
+      order.finalize(csr: csr)
+      sleep(1) 
+      while order.status == 'processing'
+        order.reload
+      end
+      crt_pem = order.certificate # => PEM-formatted certificate
 
       unless certificate.environment.nil?
         path_prefix = certificate.environment.destination_crt + "#{certificate.cn}"

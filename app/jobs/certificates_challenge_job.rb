@@ -2,9 +2,9 @@ require 'local_acme'
 
 class CertificatesChallengeJob < ApplicationJob
 
-  def perform(certificate, authorization_uri, token, attempts)
+  def perform(certificate, authorization_uri, token, attempts, order)
     begin
-      LocalAcme.instance.challenge(certificate, authorization_uri, token, attempts)
+      LocalAcme.instance.challenge(certificate, authorization_uri, token, attempts, order)
     rescue => e
       puts e.message
       puts e.backtrace.join("\n")
