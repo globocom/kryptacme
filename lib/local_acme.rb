@@ -14,6 +14,7 @@ class LocalAcme
     @gdns_endpoint = APP_CONFIG['gdns_endpoint']
     @gdns_token = APP_CONFIG['gdns_token']
     @server_dns = APP_CONFIG['server_dns']
+    @res = Net::DNS::Resolver.new(:nameservers => @server_dns, :recursive => true)
   end
 
   def register_project(project)
@@ -41,25 +42,24 @@ class LocalAcme
   end
 
   def challenge(certificate, authorization, token, attempts, order)
-    res = Net::DNS::Resolver.new(:nameservers => @server_dns, :recursive => true)
-    p res
-    packet = res.query("_acme-challenge.#{certificate.cn}", Net::DNS::TXT)
+    domain = get_domain_root(certificate.cn)
+    packet = @res.query("_acme-challenge.#{domain}", Net::DNS::TXT)
     found_txt = false
     packet.answer.each do |rr|
       if rr.txt.strip == token
-        puts "Found txt register for #{certificate.cn}"
+        puts "Found txt register for #{domain}"
         found_txt = true
         break
       end
     end
     unless found_txt
       if attempts <= 20
-        puts "#{attempts} attempts. Token #{token} not found in txt dns for #{certificate.cn}. Sending again..."
+        puts "#{attempts} attempts. Token #{token} not found in txt dns for #{domain}. Sending again..."
         attempts += 1
         CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization, token, attempts)
         return
       else
-        raise "Token #{token} _acme-challenge not found in txt for #{certificate.cn}."
+        raise "Token #{token} _acme-challenge not found in txt for #{domain}."
       end
     end
 
@@ -142,10 +142,10 @@ class LocalAcme
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
     req['X-Auth-Token'] = @gdns_token
 
-    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+    response = Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
-    puts res.body
+    puts response.body
   end
 
   def add_record_token(domain, id_domain, token)
@@ -154,8 +154,8 @@ class LocalAcme
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
     req['X-Auth-Token'] = @gdns_token
 
-    req.body = {record: {name: "_acme-challenge.#{domain}.", type: "TXT", content: "#{token}"}}.to_json
-    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+    req.body = {record: {name: "_acme-challenge.#{get_domain_root(domain)}.", type: "TXT", content: "#{token}"}}.to_json
+    Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
   end
@@ -167,25 +167,30 @@ class LocalAcme
     req = Net::HTTP::Get.new(uri)
     req['X-Auth-Token'] = @gdns_token
 
-    res = Net::HTTP.start(uri.hostname) do |http|
+    response = Net::HTTP.start(uri.hostname) do |http|
       http.request(req)
     end
 
-    if !res.is_a?(Net::HTTPSuccess)
+    if !response.is_a?(Net::HTTPSuccess)
       puts 'Search domain failed'
       return nil #TODO Return error with gdns
     end
-    domains_res = JSON.parse res.body
+    domains_res = JSON.parse response.body
     return domains_res
   end
 
   def get_domain_root(domain)
-    res = Net::DNS::Resolver.new(:nameservers => @server_dns, :recursive => true)
-    p res
-    packet = res.query("#{domain}", Net::DNS::SOA)
-    # CNAME?
-    packet = resolver.query(packet.each_address.first.cname, Net::DNS::SOA) if packet.authority.first == nil
-    return packet.authority.first.name
+    if certificate.cn.index '*' != nil
+      domain = domain.sub /^\*\./, ''
+      packet = @res.query("#{domain}", Net::DNS::SOA)
+      if packet.authority.first == nil
+        packet = resolver.query(packet.each_address.first.cname, Net::DNS::SOA)
+      end
+      if packet.authority.first != nil && packet.authority.first != ""
+        domain = packet.authority.first.name
+      end
+    end
+    return domain
   end
 
   def add_domain_with_records(domain)
@@ -198,11 +203,11 @@ class LocalAcme
       req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
       req['X-Auth-Token'] = @gdns_token
       req.body = {domain: {name: domain_root, type: "MASTER", ttl: 86400, notes: "A domain", primary_ns: "ns01.#{domain}", contact: "fapesp.corp.globo.com", refresh: 10800, retry: 3600, expire: 604800, minimum: 21600, authority_type: "M"}}.to_json
-      res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+      response = Net::HTTP.start(uri.hostname, uri.port) do |http|
         http.request(req)
       end
-      if res.is_a?(Net::HTTPSuccess)
-        domain_created = JSON.parse res.body
+      if response.is_a?(Net::HTTPSuccess)
+        domain_created = JSON.parse response.body
         if !domain_created.empty?
           id_domain = domain_created['domain']['id']
           uri = URI(@gdns_endpoint + "/domains/#{id_domain}/records.json")
@@ -210,13 +215,13 @@ class LocalAcme
           req['X-Auth-Token'] = @gdns_token
 
           req.body = {record: {name: "@", type: "NS", content: "ns01.globo.com"}}.to_json
-          res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+          Net::HTTP.start(uri.hostname, uri.port) do |http|
             http.request(req)
           end
           #TODO verify if success, because if not, we have delete the domain created for avoid problem with export
         end
       else
-        raise res.body
+        raise response.body
       end
     else
       id_domain = res_domain[0]['domain']['id']
