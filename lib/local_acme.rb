@@ -56,7 +56,7 @@ class LocalAcme
       if attempts <= 20
         puts "#{attempts} attempts. Token #{token} not found in txt dns for #{domain}. Sending again..."
         attempts += 1
-        CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization, token, attempts)
+        CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization, token, attempts, order)
         return
       else
         raise "Token #{token} _acme-challenge not found in txt for #{domain}."
@@ -180,7 +180,8 @@ class LocalAcme
   end
 
   def get_domain_root(domain)
-    if certificate.cn.index '*' != nil
+    is_wildcard = domain.index '*'
+    if is_wildcard != nil
       domain = domain.sub /^\*\./, ''
       packet = @res.query("#{domain}", Net::DNS::SOA)
       if packet.authority.first == nil
@@ -190,12 +191,11 @@ class LocalAcme
         domain = packet.authority.first.name
       end
     end
-    return domain
+    return domain.sub /\.$/, ''
   end
 
   def add_domain_with_records(domain)
     domain_root = get_domain_root(domain)
-    domain_root = domain_root.gsub(/\.$/, '')
     id_domain = nil
     res_domain = search_gdns(domain_root)
     if res_domain.empty?
