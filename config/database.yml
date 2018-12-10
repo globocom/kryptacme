@@ -53,6 +53,7 @@ test:
 production:
   <<: *default
   database: kryptacme
-  username: <%= ENV['KRYPTACME_DATABASE_USER'] %>
-  host: <%= ENV['KRYPTACME_DATABASE_HOST'] %>
+  username: <%= ENV.fetch('KRYPTACME_DATABASE_USER', 'root') %>
+  host: <%= ENV.fetch('KRYPTACME_DATABASE_HOST', '127.0.0.1') %>
+  port: <%= ENV.fetch('KRYPTACME_DATABASE_PORT', 3306) %>
   password: <%= ENV['KRYPTACME_DATABASE_PASSWORD'] %>
