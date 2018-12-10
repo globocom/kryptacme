@@ -19,7 +19,7 @@ class LocalAcme
 
   def register_project(project)
     client = _new_client(project)
-    _register_client(client, project, true) unless client.nil?
+    _register_client(client, project) unless client.nil?
   end
 
   def revoke_cert(certificate)
@@ -125,9 +125,9 @@ class LocalAcme
     client
   end
 
-  def _register_client(client, project, agree=false)
+  def _register_client(client, project, agree = true)
     contact = "mailto:#{project.email}".freeze
-    client.new_account(contact: contact, terms_of_service_agreed: true)
+    client.new_account(contact: contact, terms_of_service_agreed: agree)
   end
 
   def add_dns_txt(domain, token) #TODO verify status http code to return error or success
