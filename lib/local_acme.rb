@@ -185,7 +185,7 @@ class LocalAcme
       domain = domain.sub /^\*\./, ''
       packet = @res.query("#{domain}", Net::DNS::SOA)
       if packet.authority.first == nil
-        packet = resolver.query(packet.each_address.first.cname, Net::DNS::SOA)
+        packet = resolver.query(domain, Net::DNS::SOA)
       end
       if packet.authority.first != nil && packet.authority.first != ""
         domain = packet.authority.first.name
