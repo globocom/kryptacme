@@ -16,7 +16,7 @@ services:
     ports:
       - 3307:3306
     healthcheck:
-      test: "(echo >/dev/tcp/127.0.0.1/3307)"
+      test: "(echo >/dev/tcp/localhost/3307)"
 
   kryptacme:
     image: tuxmonteiro/kryptacme
@@ -42,7 +42,7 @@ services:
     ports:
       - 3306:3306
     healthcheck:
-      test: "(echo >/dev/tcp/127.0.0.1/3306)"
+      test: "(echo >/dev/tcp/localhost/3306)"
 
   globodns:
     image: tuxmonteiro/globodns
