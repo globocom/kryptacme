@@ -99,11 +99,11 @@ class LocalAcme
         end
       end
 
-      openSSLCert = OpenSSL::X509::Certificate.new(crt_pem)
+      ssl_cert = OpenSSL::X509::Certificate.new(crt_pem)
 
       certificate.last_crt = crt_pem
       certificate.valid_rec!
-      certificate.expired_at = openSSLCert.not_after
+      certificate.expired_at = ssl_cert.not_after
       certificate.save
     else
       certificate.status_detail = challenge.authorization.dns01.error
@@ -122,13 +122,12 @@ class LocalAcme
                               directory: @acme_endpoint,
                               connection_options: {request: {open_timeout: 60, timeout: 60}})
     raise "Some error happined when create client with LetsEncrypt" if client.nil?
-    return client
+    client
   end
 
   def _register_client(client, project, agree=false)
     contact = "mailto:#{project.email}".freeze
-    registration = client.new_account(contact: contact, terms_of_service_agreed: true)
-    # registration.agree_terms if agree and !registration.nil?
+    client.new_account(contact: contact, terms_of_service_agreed: true)
   end
 
   def add_dns_txt(domain, token) #TODO verify status http code to return error or success
@@ -171,12 +170,11 @@ class LocalAcme
       http.request(req)
     end
 
-    if !response.is_a?(Net::HTTPSuccess)
+    unless response.is_a?(Net::HTTPSuccess)
       puts 'Search domain failed'
       return nil #TODO Return error with gdns
     end
-    domains_res = JSON.parse response.body
-    return domains_res
+    JSON.parse response.body
   end
 
   def get_domain_root(domain)
@@ -191,7 +189,7 @@ class LocalAcme
         domain = packet.authority.first.name
       end
     end
-    return domain.sub /\.$/, ''
+    domain.sub /\.$/, ''
   end
 
   def add_domain_with_records(domain)
@@ -208,7 +206,7 @@ class LocalAcme
       end
       if response.is_a?(Net::HTTPSuccess)
         domain_created = JSON.parse response.body
-        if !domain_created.empty?
+        unless domain_created.empty?
           id_domain = domain_created['domain']['id']
           uri = URI(@gdns_endpoint + "/domains/#{id_domain}/records.json")
           req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
@@ -226,7 +224,6 @@ class LocalAcme
     else
       id_domain = res_domain[0]['domain']['id']
     end
-    return id_domain
-
+    id_domain
   end
 end
