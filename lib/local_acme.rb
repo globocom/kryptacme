@@ -42,24 +42,24 @@ class LocalAcme
   end
 
   def challenge(certificate, authorization, token, attempts, order)
-    domain = suffix_challenge_fqdn(certificate.cn)
-    packet = @res.query("_acme-challenge.#{domain}", Net::DNS::TXT)
+    challenge_txt_fqdn = get_challenge_fqdn(certificate.cn)
+    packet = @res.query(challenge_txt_fqdn, Net::DNS::TXT)
     found_txt = false
     packet.answer.each do |rr|
       if rr.txt.strip == token
-        puts "Found txt register for #{domain}"
+        puts "Found txt register for #{challenge_txt_fqdn}"
         found_txt = true
         break
       end
     end
     unless found_txt
       if attempts <= 20
-        puts "#{attempts} attempts. Token #{token} not found in txt dns for #{domain}. Sending again..."
+        puts "#{attempts} attempts. Token #{token} not found in txt dns for #{challenge_txt_fqdn}. Sending again..."
         attempts += 1
         CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization, token, attempts, order)
         return
       else
-        raise "Token #{token} _acme-challenge not found in txt for #{domain}."
+        raise "Token #{token} _acme-challenge not found in txt for #{challenge_txt_fqdn}."
       end
     end
 
@@ -153,7 +153,7 @@ class LocalAcme
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
     req['X-Auth-Token'] = @gdns_token
 
-    req.body = {record: {name: "_acme-challenge.#{suffix_challenge_fqdn(domain)}.", type: "TXT", content: "#{token}"}}.to_json
+    req.body = {record: {name: "#{get_challenge_fqdn(domain)}.", type: "TXT", content: "#{token}"}}.to_json
     Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
@@ -171,16 +171,16 @@ class LocalAcme
     end
 
     unless response.is_a?(Net::HTTPSuccess)
-      puts 'Search domain failed'
+      puts 'Search challenge_txt_fqdn failed'
       return nil #TODO Return error with gdns
     end
     JSON.parse response.body
   end
 
-  def suffix_challenge_fqdn(domain)
+  def get_challenge_fqdn(domain)
     is_wildcard = domain.index '*'
     domain = get_domain_root(domain) unless is_wildcard.nil?
-    domain.sub /\.$/, ''
+    "_acme-challenge.#{domain.sub(/\.$/, '')}"
   end
 
   def get_domain_root(domain)
@@ -192,7 +192,7 @@ class LocalAcme
     if !packet.authority.first.nil? && packet.authority.first != ''
       packet.authority.first.name
     end
-    raise "SOA AUTHORITY NOT FOUND (domain #{domain})"
+    raise "SOA AUTHORITY NOT FOUND (challenge_txt_fqdn #{domain})"
   end
 
   def add_domain_with_records(domain)
@@ -203,14 +203,14 @@ class LocalAcme
       uri = URI(@gdns_endpoint + '/domains.json')
       req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
       req['X-Auth-Token'] = @gdns_token
-      req.body = {domain: {name: domain_root, type: "MASTER", ttl: 86400, notes: "A domain", primary_ns: "ns01.#{domain}", contact: "fapesp.corp.globo.com", refresh: 10800, retry: 3600, expire: 604800, minimum: 21600, authority_type: "M"}}.to_json
+      req.body = {domain: {name: domain_root, type: "MASTER", ttl: 86400, notes: "A challenge_txt_fqdn", primary_ns: "ns01.#{domain}", contact: "fapesp.corp.globo.com", refresh: 10800, retry: 3600, expire: 604800, minimum: 21600, authority_type: "M"}}.to_json
       response = Net::HTTP.start(uri.hostname, uri.port) do |http|
         http.request(req)
       end
       if response.is_a?(Net::HTTPSuccess)
         domain_created = JSON.parse response.body
         unless domain_created.empty?
-          id_domain = domain_created['domain']['id']
+          id_domain = domain_created['challenge_txt_fqdn']['id']
           uri = URI(@gdns_endpoint + "/domains/#{id_domain}/records.json")
           req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
           req['X-Auth-Token'] = @gdns_token
@@ -219,13 +219,13 @@ class LocalAcme
           Net::HTTP.start(uri.hostname, uri.port) do |http|
             http.request(req)
           end
-          #TODO verify if success, because if not, we have delete the domain created for avoid problem with export
+          #TODO verify if success, because if not, we have delete the challenge_txt_fqdn created for avoid problem with export
         end
       else
         raise response.body
       end
     else
-      id_domain = res_domain[0]['domain']['id']
+      id_domain = res_domain[0]['challenge_txt_fqdn']['id']
     end
     id_domain
   end
