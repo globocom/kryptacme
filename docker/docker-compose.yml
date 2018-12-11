@@ -5,12 +5,6 @@ services:
   kryptacmedb:
     image: mysql:5.6
     container_name: kryptacmedb.local
-    environment:
-      KRYPTACME_DATABASE_USER: root
-      KRYPTACME_DATABASE_HOST: 127.0.0.1
-      KRYPTACME_DATABASE_PORT: 3307
-      KRYPTACME_DATABASE_PASSWORD: password
-      SECRET_KEY_BASE: ac78b90016cdfd18801e08b146c2eb69d6bac46d44009259e9ccf9abe982f16fe8c745d8881538ca9dba2d5b0f9daf459db3c54d4a609b888b56703b3a81caeb
     networks:
       - mynetworks
     ports:
@@ -21,6 +15,12 @@ services:
   kryptacme:
     image: tuxmonteiro/kryptacme
     container_name: kryptacme
+    environment:
+      KRYPTACME_DATABASE_USER: root
+      KRYPTACME_DATABASE_HOST: 127.0.0.1
+      KRYPTACME_DATABASE_PORT: 3307
+      KRYPTACME_DATABASE_PASSWORD: password
+      SECRET_KEY_BASE: ac78b90016cdfd18801e08b146c2eb69d6bac46d44009259e9ccf9abe982f16fe8c745d8881538ca9dba2d5b0f9daf459db3c54d4a609b888b56703b3a81caeb
     networks:
       - mynetworks
     ports:
