@@ -10,7 +10,7 @@ class LocalAcme
   include Singleton
 
   def initialize
-    @acme_endpoint = APP_CONFIG['acme_endpoint']+"/dir"
+    @acme_endpoint = APP_CONFIG['acme_endpoint']
     @gdns_endpoint = APP_CONFIG['gdns_endpoint']
     @gdns_token = APP_CONFIG['gdns_token']
     @server_dns = APP_CONFIG['server_dns']
@@ -19,7 +19,7 @@ class LocalAcme
 
   def register_project(project)
     client = _new_client(project)
-    _register_client(client, project, true) unless client.nil?
+    _register_client(client, project) unless client.nil?
   end
 
   def revoke_cert(certificate)
@@ -42,24 +42,24 @@ class LocalAcme
   end
 
   def challenge(certificate, authorization, token, attempts, order)
-    domain = get_domain_root(certificate.cn)
-    packet = @res.query("_acme-challenge.#{domain}", Net::DNS::TXT)
+    challenge_txt_fqdn = get_challenge_fqdn(certificate.cn)
+    packet = @res.query(challenge_txt_fqdn, Net::DNS::TXT)
     found_txt = false
     packet.answer.each do |rr|
       if rr.txt.strip == token
-        puts "Found txt register for #{domain}"
+        puts "Found txt register for #{challenge_txt_fqdn}"
         found_txt = true
         break
       end
     end
     unless found_txt
       if attempts <= 20
-        puts "#{attempts} attempts. Token #{token} not found in txt dns for #{domain}. Sending again..."
+        puts "#{attempts} attempts. Token #{token} not found in txt dns for #{challenge_txt_fqdn}. Sending again..."
         attempts += 1
         CertificatesChallengeJob.set(wait: 1.minutes).perform_later(certificate,authorization, token, attempts, order)
         return
       else
-        raise "Token #{token} _acme-challenge not found in txt for #{domain}."
+        raise "Token #{token} _acme-challenge not found in txt for #{challenge_txt_fqdn}."
       end
     end
 
@@ -99,11 +99,11 @@ class LocalAcme
         end
       end
 
-      openSSLCert = OpenSSL::X509::Certificate.new(crt_pem)
+      ssl_cert = OpenSSL::X509::Certificate.new(crt_pem)
 
       certificate.last_crt = crt_pem
       certificate.valid_rec!
-      certificate.expired_at = openSSLCert.not_after
+      certificate.expired_at = ssl_cert.not_after
       certificate.save
     else
       certificate.status_detail = challenge.authorization.dns01.error
@@ -122,13 +122,12 @@ class LocalAcme
                               directory: @acme_endpoint,
                               connection_options: {request: {open_timeout: 60, timeout: 60}})
     raise "Some error happined when create client with LetsEncrypt" if client.nil?
-    return client
+    client
   end
 
-  def _register_client(client, project, agree=false)
+  def _register_client(client, project, agree = true)
     contact = "mailto:#{project.email}".freeze
-    registration = client.new_account(contact: contact, terms_of_service_agreed: true)
-    # registration.agree_terms if agree and !registration.nil?
+    client.new_account(contact: contact, terms_of_service_agreed: agree)
   end
 
   def add_dns_txt(domain, token) #TODO verify status http code to return error or success
@@ -154,7 +153,7 @@ class LocalAcme
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
     req['X-Auth-Token'] = @gdns_token
 
-    req.body = {record: {name: "_acme-challenge.#{get_domain_root(domain)}.", type: "TXT", content: "#{token}"}}.to_json
+    req.body = {record: {name: "#{get_challenge_fqdn(domain)}.", type: "TXT", content: "#{token}"}}.to_json
     Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
@@ -171,27 +170,29 @@ class LocalAcme
       http.request(req)
     end
 
-    if !response.is_a?(Net::HTTPSuccess)
-      puts 'Search domain failed'
+    unless response.is_a?(Net::HTTPSuccess)
+      puts 'Search challenge_txt_fqdn failed'
       return nil #TODO Return error with gdns
     end
-    domains_res = JSON.parse response.body
-    return domains_res
+    JSON.parse response.body
+  end
+
+  def get_challenge_fqdn(domain)
+    is_wildcard = domain.index '*'
+    domain = get_domain_root(domain) unless is_wildcard.nil?
+    "_acme-challenge.#{domain.sub(/\.$/, '')}"
   end
 
   def get_domain_root(domain)
-    is_wildcard = domain.index '*'
-    if is_wildcard != nil
-      domain = domain.sub /^\*\./, ''
-      packet = @res.query("#{domain}", Net::DNS::SOA)
-      if packet.authority.first == nil
-        packet = resolver.query(domain, Net::DNS::SOA)
-      end
-      if packet.authority.first != nil && packet.authority.first != ""
-        domain = packet.authority.first.name
-      end
+    domain = domain.sub /^\*\./, ''
+    packet = @res.query("#{domain}", Net::DNS::SOA)
+    if packet.authority.first.nil? && !packet.each_address.first.nil?
+      packet = @res.query(packet.each_address.first.cname, Net::DNS::SOA)
     end
-    return domain.sub /\.$/, ''
+    if !packet.authority.first.nil? && packet.authority.first != ''
+      packet.authority.first.name
+    end
+    raise "SOA AUTHORITY NOT FOUND (challenge_txt_fqdn #{domain})"
   end
 
   def add_domain_with_records(domain)
@@ -202,14 +203,14 @@ class LocalAcme
       uri = URI(@gdns_endpoint + '/domains.json')
       req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
       req['X-Auth-Token'] = @gdns_token
-      req.body = {domain: {name: domain_root, type: "MASTER", ttl: 86400, notes: "A domain", primary_ns: "ns01.#{domain}", contact: "fapesp.corp.globo.com", refresh: 10800, retry: 3600, expire: 604800, minimum: 21600, authority_type: "M"}}.to_json
+      req.body = {domain: {name: domain_root, type: "MASTER", ttl: 86400, notes: "A challenge_txt_fqdn", primary_ns: "ns01.#{domain}", contact: "fapesp.corp.globo.com", refresh: 10800, retry: 3600, expire: 604800, minimum: 21600, authority_type: "M"}}.to_json
       response = Net::HTTP.start(uri.hostname, uri.port) do |http|
         http.request(req)
       end
       if response.is_a?(Net::HTTPSuccess)
         domain_created = JSON.parse response.body
-        if !domain_created.empty?
-          id_domain = domain_created['domain']['id']
+        unless domain_created.empty?
+          id_domain = domain_created['challenge_txt_fqdn']['id']
           uri = URI(@gdns_endpoint + "/domains/#{id_domain}/records.json")
           req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
           req['X-Auth-Token'] = @gdns_token
@@ -218,15 +219,14 @@ class LocalAcme
           Net::HTTP.start(uri.hostname, uri.port) do |http|
             http.request(req)
           end
-          #TODO verify if success, because if not, we have delete the domain created for avoid problem with export
+          #TODO verify if success, because if not, we have delete the challenge_txt_fqdn created for avoid problem with export
         end
       else
         raise response.body
       end
     else
-      id_domain = res_domain[0]['domain']['id']
+      id_domain = res_domain[0]['challenge_txt_fqdn']['id']
     end
-    return id_domain
-
+    id_domain
   end
 end
