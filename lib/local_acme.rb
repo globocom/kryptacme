@@ -10,7 +10,7 @@ class LocalAcme
   include Singleton
 
   def initialize
-    @acme_endpoint = APP_CONFIG['acme_endpoint']+"/dir"
+    @acme_endpoint = APP_CONFIG['acme_endpoint']
     @gdns_endpoint = APP_CONFIG['gdns_endpoint']
     @gdns_token = APP_CONFIG['gdns_token']
     @server_dns = APP_CONFIG['server_dns']

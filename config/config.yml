@@ -1,5 +1,5 @@
 defaults: &defaults
-  acme_endpoint: <%= ENV['ACME_ENDPOINT'] %>
+  acme_endpoint: <%= ENV.fetch('ACME_ENDPOINT', 'https://127.0.0.1:14000/dir') %>
   gdns_endpoint: <%= ENV['GDNS_ENDPOINT'] %>
   gdns_token: <%= ENV['GDNS_TOKEN'] %>
   dest_crt: <%= ENV['DEST_CRT'] %>
