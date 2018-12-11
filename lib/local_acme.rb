@@ -42,7 +42,7 @@ class LocalAcme
   end
 
   def challenge(certificate, authorization, token, attempts, order)
-    domain = get_domain_root(certificate.cn)
+    domain = suffix_challenge_fqdn(certificate.cn)
     packet = @res.query("_acme-challenge.#{domain}", Net::DNS::TXT)
     found_txt = false
     packet.answer.each do |rr|
@@ -153,7 +153,7 @@ class LocalAcme
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
     req['X-Auth-Token'] = @gdns_token
 
-    req.body = {record: {name: "_acme-challenge.#{get_domain_root(domain)}.", type: "TXT", content: "#{token}"}}.to_json
+    req.body = {record: {name: "_acme-challenge.#{suffix_challenge_fqdn(domain)}.", type: "TXT", content: "#{token}"}}.to_json
     Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
@@ -177,19 +177,22 @@ class LocalAcme
     JSON.parse response.body
   end
 
-  def get_domain_root(domain)
+  def suffix_challenge_fqdn(domain)
     is_wildcard = domain.index '*'
-    if is_wildcard != nil
-      domain = domain.sub /^\*\./, ''
-      packet = @res.query("#{domain}", Net::DNS::SOA)
-      if packet.authority.first == nil
-        packet = resolver.query(domain, Net::DNS::SOA)
-      end
-      if packet.authority.first != nil && packet.authority.first != ""
-        domain = packet.authority.first.name
-      end
-    end
+    domain = get_domain_root(domain) unless is_wildcard.nil?
     domain.sub /\.$/, ''
+  end
+
+  def get_domain_root(domain)
+    domain = domain.sub /^\*\./, ''
+    packet = @res.query("#{domain}", Net::DNS::SOA)
+    if packet.authority.first.nil? && !packet.each_address.first.nil?
+      packet = @res.query(packet.each_address.first.cname, Net::DNS::SOA)
+    end
+    if !packet.authority.first.nil? && packet.authority.first != ''
+      packet.authority.first.name
+    end
+    raise "SOA AUTHORITY NOT FOUND (domain #{domain})"
   end
 
   def add_domain_with_records(domain)
