@@ -43,6 +43,7 @@ class LocalAcme
 
   def challenge(certificate, authorization, token, attempts, order)
     challenge_txt_fqdn = get_challenge_fqdn(certificate.cn)
+    puts "#{challenge_txt_fqdn} IN TXT #{token}"
     packet = @res.query(challenge_txt_fqdn, Net::DNS::TXT)
     found_txt = false
     packet.answer.each do |rr|
@@ -161,7 +162,7 @@ class LocalAcme
 
   def search_gdns(domain)
     uri = URI(@gdns_endpoint + '/domains.json')
-    params = { :query => domain }
+    params = { :query => domain.sub(/\.$/, '') }
     uri.query = URI.encode_www_form(params)
     req = Net::HTTP::Get.new(uri)
     req['X-Auth-Token'] = @gdns_token
@@ -190,8 +191,9 @@ class LocalAcme
       packet = @res.query(packet.each_address.first.cname, Net::DNS::SOA)
     end
     if !packet.authority.first.nil? && packet.authority.first != ''
-      packet.authority.first.name
+      return packet.authority.first.name
     end
+
     raise "SOA AUTHORITY NOT FOUND (challenge_txt_fqdn #{domain})"
   end
 
@@ -225,7 +227,7 @@ class LocalAcme
         raise response.body
       end
     else
-      id_domain = res_domain[0]['challenge_txt_fqdn']['id']
+      id_domain = res_domain.first['domain']['id']
     end
     id_domain
   end
