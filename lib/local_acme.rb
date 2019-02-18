@@ -167,7 +167,7 @@ class LocalAcme
     req = Net::HTTP::Get.new(uri)
     req['X-Auth-Token'] = @gdns_token
 
-    response = Net::HTTP.start(uri.hostname) do |http|
+    response = Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
 
@@ -211,6 +211,9 @@ class LocalAcme
       end
       if response.is_a?(Net::HTTPSuccess)
         domain_created = JSON.parse response.body
+        print("\ndomain_created: #{domain_created}\n")
+        print("domain_created['challenge_txt_fqdn']: #{domain_created['challenge_txt_fqdn']}\n")
+        print("response.body: #{response.body}\n")
         unless domain_created.empty?
           id_domain = domain_created['challenge_txt_fqdn']['id']
           uri = URI(@gdns_endpoint + "/domains/#{id_domain}/records.json")
