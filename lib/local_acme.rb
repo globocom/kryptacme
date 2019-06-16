@@ -82,7 +82,7 @@ class LocalAcme
       csr = Acme::Client::CertificateRequest.new(common_name: certificate.cn)
       order = client.order(url: order)
       order.finalize(csr: csr)
-      sleep(1) 
+      sleep(1)
       while order.status == 'processing'
         order.reload
       end
@@ -186,7 +186,7 @@ class LocalAcme
 
   def get_domain_root(domain)
     domain = domain.sub /^\*\./, ''
-    packet = @res.query("#{domain}", Net::DNS::SOA)
+    packet = @res.query("#{domain}", Net::DNS::ANY)
     if packet.authority.first.nil? && !packet.each_address.first.nil?
       packet = @res.query(packet.each_address.first.cname, Net::DNS::SOA)
     end
