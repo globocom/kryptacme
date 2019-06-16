@@ -187,9 +187,6 @@ class LocalAcme
   def get_domain_root(domain)
     domain = domain.sub /^\*\./, ''
     packet = @res.query("#{domain}", Net::DNS::ANY)
-    if packet.authority.first.nil? && !packet.each_address.first.nil?
-      packet = @res.query(packet.each_address.first.cname, Net::DNS::SOA)
-    end
     if !packet.authority.first.nil? && packet.authority.first != ''
       return packet.authority.first.name
     end
