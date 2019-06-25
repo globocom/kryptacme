@@ -79,7 +79,7 @@ class LocalAcme
       end
     end
     if challenge.status == 'valid'
-      csr = Acme::Client::CertificateRequest.new(common_name: certificate.cn)
+      csr = OpenSSL::X509::Request.new(certificate.csr)
       order = client.order(url: order)
       order.finalize(csr: csr)
       sleep(1)
