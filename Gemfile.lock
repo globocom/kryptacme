@@ -5,17 +5,11 @@ GIT
   specs:
     net-dns (0.9.0)
 
-GIT
-  remote: https://github.com/unixcharles/acme-client.git
-  revision: d85a699c7b831d63a95deec983e1a89df4e7cb6f
-  branch: fix-invalid-directory-error
-  specs:
-    acme-client (2.0.0)
-      faraday (~> 0.9, >= 0.9.1)
-
 GEM
   remote: https://rubygems.org/
   specs:
+    acme-client (2.0.3)
+      faraday (~> 0.9, >= 0.9.1)
     actioncable (5.0.7.1)
       actionpack (= 5.0.7.1)
       nio4r (>= 1.2, < 3.0)
@@ -107,7 +101,7 @@ GEM
     minitest (5.11.3)
     mocha (1.8.0)
       metaclass (~> 0.0.1)
-    multipart-post (2.0.0)
+    multipart-post (2.1.1)
     mysql2 (0.4.10)
     net-ldap (0.16.1)
     nio4r (2.3.1)
@@ -209,7 +203,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  acme-client!
+  acme-client (= 2.0.3)
   active_model_serializers (= 0.10.3)
   bundler (>= 1.3.0)
   devise

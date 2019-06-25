@@ -43,7 +43,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :jruby]
 gem 'active_model_serializers', '0.10.3'
 
 # acme-client
-gem 'acme-client', :git => 'https://github.com/unixcharles/acme-client.git', :branch => 'fix-invalid-directory-error'
+gem 'acme-client', '2.0.3'
 
 gem 'sidekiq'
 gem 'sidekiq-cron', '~> 0.4.0'
