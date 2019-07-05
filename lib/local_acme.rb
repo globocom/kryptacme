@@ -186,12 +186,15 @@ class LocalAcme
 
   def get_domain_root(domain)
     domain = domain.sub /^\*\./, ''
-    packet = @res.query("#{domain}", Net::DNS::ANY)
+    packet = @res.query("#{domain}", Net::DNS::SOA)
     if !packet.authority.first.nil? && packet.authority.first != ''
-      return packet.authority.first.name
+      packet.authority.first.name
+    elsif !packet.answer.first.nil? && !packet.answer.first.type.nil? && packet.answer.first.type.upcase.eql?("CNAME")
+      packet = @res.query("#{domain}", Net::DNS::CNAME)
+      packet.authority.first.name if !packet.authority.first.nil? && !packet.authority.first.name.empty?
+    else
+      raise "SOA AUTHORITY NOT FOUND (challenge_txt_fqdn #{domain})"
     end
-
-    raise "SOA AUTHORITY NOT FOUND (challenge_txt_fqdn #{domain})"
   end
 
   def add_domain_with_records(domain)
