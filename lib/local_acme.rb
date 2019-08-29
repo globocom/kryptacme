@@ -179,8 +179,7 @@ class LocalAcme
   end
 
   def get_challenge_fqdn(domain)
-    is_wildcard = domain.index '*'
-    domain = get_domain_root(domain) unless is_wildcard.nil?
+    domain = domain.sub /^\*\./, ''
     "_acme-challenge.#{domain.sub(/\.$/, '')}"
   end
 
