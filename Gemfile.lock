@@ -113,7 +113,7 @@ GEM
       ast (~> 2.4.0)
     powerpack (0.1.2)
     raabro (1.1.6)
-    rack (2.0.6)
+    rack (2.2.3)
     rack-protection (2.0.5)
       rack
     rack-test (0.6.3)
